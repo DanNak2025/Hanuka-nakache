@@ -120,6 +120,28 @@
         section[id], header[id] { scroll-margin-top: 5rem; }
         :focus-visible { outline: 2px solid #F3E5AB; outline-offset: 4px; }
         .photo-dialog { max-height: 90dvh; overflow-y: auto; }
+        .reading-card { background-color: #16304b; }
+        .main-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 56px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.75rem;
+            background-color: #edc96b;
+            color: #0b192c;
+            font-size: 1.125rem;
+            font-weight: 700;
+            line-height: 1.4;
+            text-align: center;
+        }
+        .main-action:hover { background-color: #f6dc95; }
+        .main-action:disabled { opacity: 0.65; }
+        #blessing-form { scroll-margin-top: 6rem; }
+        #hero-family-photo { height: clamp(11rem, 51vw, 29rem); object-position: center 45%; }
+        #author-name, #blessing-text { font-size: 1.125rem; line-height: 1.55; }
+        #author-name { min-height: 3.5rem; }
+        #blessing-form input::placeholder, #blessing-form textarea::placeholder { color: #c1cbda; }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
         }
@@ -170,11 +192,15 @@
     </nav>
 
     <!-- Section Héro & Hanoukkia Interactive -->
-    <header id="hanoukkia" class="relative pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 overflow-hidden">
+    <header id="hanoukkia" class="relative pt-6 pb-16 sm:pt-12 sm:pb-24 px-4 overflow-hidden">
         <div class="max-w-5xl mx-auto text-center">
-            <h1 class="font-serif text-4xl sm:text-6xl font-bold text-goldLight gold-glow mb-4">Joyeux Hanoucca</h1>
-            <p class="font-serif text-lg sm:text-xl text-gold mb-5" lang="he" dir="rtl">חג חנוכה שמח</p>
-            <p class="max-w-2xl mx-auto text-cream/85 text-base sm:text-lg font-light leading-relaxed mb-8">
+            <h1 class="font-serif text-3xl sm:text-6xl font-bold text-goldLight gold-glow mb-2">Joyeux Hanoucca</h1>
+            <p class="font-serif text-lg sm:text-xl text-goldLight mb-4" lang="he" dir="rtl">חג חנוכה שמח</p>
+            <div id="home-family-actions" hidden class="mx-auto mb-6 grid max-w-lg gap-3 sm:grid-cols-2">
+                <a href="#blessing-form" class="main-action">Écrire à Papi et Mamie</a>
+                <button type="button" id="home-add-photo" class="main-action" onclick="togglePhotoModal(true)">Ajouter une photo</button>
+            </div>
+            <p class="max-w-2xl mx-auto text-cream text-base sm:text-lg leading-relaxed mb-6">
                 Que la lumière des bougies de Hanoucca illumine notre foyer, réchauffe les cœurs de nos chers grands-parents et unisse toute la famille Nakache dans la joie, la santé et la paix.
             </p>
 
@@ -183,21 +209,8 @@
                 <div class="relative rounded-3xl overflow-hidden card-gold-border bg-royal/40 p-2 sm:p-3 shadow-2xl group">
                     <button type="button" class="block w-full relative rounded-2xl overflow-hidden" onclick="openLightbox(featuredPhoto)" aria-label="Agrandir la photo de famille">
                         <img id="hero-family-photo" src="photo-famille.jpg" alt="La grande famille NAKACHE réunie autour de la table"
-                             class="w-full max-h-[480px] object-cover transition-transform duration-700 group-hover:scale-[1.02]">
-                        <span class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-midnight/20 to-transparent"></span>
-                        <span class="absolute bottom-3 left-4 right-4 sm:bottom-5 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-left">
-                            <span>
-                                <span class="inline-block px-2.5 py-0.5 rounded-full bg-gold/90 text-midnight font-bold text-[11px] uppercase tracking-wider mb-1.5">
-                                    ✨ Souvenir de Famille
-                                </span>
-                                <span class="font-serif text-base sm:text-xl text-goldLight font-semibold">
-                                    Toute la famille NAKACHE réunie avec amour
-                                </span>
-                            </span>
-                            <span class="self-start sm:self-auto px-3 py-1.5 rounded-full bg-midnight/80 border border-gold/40 text-goldLight text-xs backdrop-blur-sm">
-                                🔍 Agrandir la photo
-                            </span>
-                        </span>
+                             class="w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]">
+                        <span class="absolute bottom-3 right-3 rounded-lg bg-midnight/95 px-3 py-2 text-base font-semibold text-cream">Agrandir la photo</span>
                     </button>
                 </div>
             </div>
@@ -273,50 +286,51 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <!-- Formulaire d'ajout de bénédiction -->
-                <div class="lg:col-span-5 bg-royal/40 backdrop-blur-sm rounded-3xl p-6 sm:p-8 card-gold-border">
+                <div class="lg:col-span-5 reading-card rounded-3xl p-5 sm:p-8 card-gold-border">
                     <h3 class="font-serif text-xl text-goldLight font-semibold mb-6 flex items-center gap-2">
                         <span>✍️</span> Écrire une bénédiction
                     </h3>
 
-                    <form id="blessing-form" class="space-y-5" hidden>
+                    <form id="blessing-form" class="space-y-5" tabindex="-1" hidden>
                         <div>
-                            <label for="author-name" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre prénom (et branche de la famille)</label>
+                            <label for="author-name" class="block text-lg font-semibold text-cream mb-2">Ton prénom</label>
                             <input type="text" id="author-name" required maxlength="80" placeholder="Ex : Sarah, Léa & David..."
                                 class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-goldLight/90 mb-2">Choisissez un symbole de Hanoucca</label>
-                            <div class="grid grid-cols-6 gap-2" id="icon-selector">
-                                <button type="button" data-icon="🕎" class="icon-btn active p-2.5 rounded-xl bg-gold/20 border-2 border-gold text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Hanoukkia">🕎</button>
-                                <button type="button" data-icon="🎯" class="icon-btn p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Toupie / Dreidel">🎯</button>
-                                <button type="button" data-icon="🍩" class="icon-btn p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Beignet / Soufganiya">🍩</button>
-                                <button type="button" data-icon="✡️" class="icon-btn p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Étoile de David">✡️</button>
-                                <button type="button" data-icon="❤️" class="icon-btn p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Cœur">❤️</button>
-                                <button type="button" data-icon="✨" class="icon-btn p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Lumière">✨</button>
+                            <label class="block text-lg font-semibold text-cream mb-2">Choisis un symbole</label>
+                            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="icon-selector">
+                                <button type="button" data-icon="🕎" class="icon-btn min-h-[48px] active p-2.5 rounded-xl bg-gold/20 border-2 border-gold text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Hanoukkia">🕎</button>
+                                <button type="button" data-icon="🎯" class="icon-btn min-h-[48px] p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Toupie / Dreidel">🎯</button>
+                                <button type="button" data-icon="🍩" class="icon-btn min-h-[48px] p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Beignet / Soufganiya">🍩</button>
+                                <button type="button" data-icon="✡️" class="icon-btn min-h-[48px] p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Étoile de David">✡️</button>
+                                <button type="button" data-icon="❤️" class="icon-btn min-h-[48px] p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Cœur">❤️</button>
+                                <button type="button" data-icon="✨" class="icon-btn min-h-[48px] p-2.5 rounded-xl bg-midnight/70 border border-gold/20 text-xl sm:text-2xl flex items-center justify-center transition-all hover:scale-105" title="Lumière">✨</button>
                             </div>
                             <input type="hidden" id="selected-icon" value="🕎">
                         </div>
 
                         <div>
-                            <label for="blessing-text" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre message pour nos Grands-Parents</label>
+                            <label for="blessing-text" class="block text-lg font-semibold text-cream mb-2">Ton message pour Papi et Mamie</label>
                             <textarea id="blessing-text" rows="4" required maxlength="2000" placeholder="Chers Papi et Mamie, en ce Hanoucca nous vous souhaitons..."
                                 class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all resize-none"></textarea>
                         </div>
 
-                        <button type="submit" id="blessing-submit-btn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold to-goldLight text-midnight font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-gold/20 flex items-center justify-center gap-2">
-                            <span>✨ Publier ma bénédiction</span>
+                        <button type="submit" id="blessing-submit-btn" class="main-action w-full">
+                            <span>Publier ma bénédiction</span>
                         </button>
+                        <p id="blessing-published" role="status" hidden class="rounded-xl border border-emerald-400/60 bg-emerald-950 px-4 py-3 text-lg font-semibold leading-relaxed text-emerald-100"></p>
                     </form>
 
-                    <p id="family-status" role="status" class="mt-5 text-sm leading-relaxed text-cream/85">Ouvrez le lien d’invitation familial pour voir ou ajouter des souvenirs.</p>
+                    <p id="family-status" role="status" class="mt-5 text-base leading-relaxed text-cream">Ouvrez le lien d’invitation familial pour voir ou ajouter des souvenirs.</p>
                     <button type="button" id="share-local" hidden class="mt-3 px-3 py-2 rounded-lg bg-gold text-midnight font-semibold text-xs">Partager mes anciens ajouts</button>
                 </div>
 
                 <!-- Mur des bénédictions -->
                 <div class="lg:col-span-7">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-goldLight font-medium" id="blessings-count" aria-live="polite">Chargement des bénédictions...</span>
+                        <span class="text-base text-cream font-semibold" id="blessings-count" aria-live="polite">Chargement des bénédictions...</span>
                         <span class="text-xs text-cream/60 italic">Avec tout notre amour ❤️</span>
                     </div>
 
@@ -342,7 +356,7 @@
                     </p>
                 </div>
 
-                <button type="button" id="add-family-photo" hidden onclick="togglePhotoModal(true)" class="self-start md:self-auto min-h-[56px] px-6 py-4 rounded-xl bg-gold text-midnight font-bold text-lg hover:bg-goldLight transition-all shadow-lg shadow-gold/20 flex items-center gap-2">
+                <button type="button" id="add-family-photo" hidden onclick="togglePhotoModal(true)" class="main-action self-start md:self-auto gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>Ajouter une photo</span>
                 </button>
@@ -376,7 +390,7 @@
             <h3 id="photo-dialog-title" class="font-serif text-2xl text-goldLight font-bold">Ajouter une photo</h3>
             <form id="photo-form" class="mt-4 space-y-4">
                 <div id="photo-choices" class="grid gap-3">
-                    <button type="button" id="choose-photo" class="w-full min-h-[56px] rounded-xl bg-gold px-4 py-3 text-lg font-bold text-midnight hover:bg-goldLight">Choisir une photo</button>
+                    <button type="button" id="choose-photo" class="main-action w-full">Choisir une photo</button>
                     <button type="button" id="take-photo" hidden class="w-full min-h-[56px] rounded-xl border border-gold/60 px-4 py-3 text-lg font-semibold text-goldLight hover:bg-royal">Prendre une photo</button>
                     <input id="photo-file-input" type="file" accept="image/*,.heic,.heif" hidden>
                     <input id="camera-file-input" type="file" accept="image/*" capture="environment" hidden>
@@ -398,7 +412,7 @@
                     <input type="text" id="photo-caption" maxlength="200" class="w-full min-h-[52px] rounded-xl bg-royal/40 border border-gold/50 px-3 py-2 text-lg text-cream">
                 </div>
 
-                <button type="submit" id="photo-submit-btn" hidden class="w-full min-h-[56px] rounded-xl bg-gold px-4 py-3 text-lg font-bold text-midnight hover:bg-goldLight disabled:opacity-60">Partager cette photo</button>
+                <button type="submit" id="photo-submit-btn" hidden class="main-action w-full">Partager cette photo</button>
                 <button type="button" id="photo-cancel" class="w-full min-h-[48px] rounded-xl border border-gold/40 px-4 py-2 text-base font-semibold text-goldLight disabled:opacity-60">Annuler</button>
             </form>
         </div>
@@ -511,7 +525,7 @@
                 byId('family-status').textContent = 'Autorisez le stockage dans ce navigateur pour ouvrir l’espace familial.';
                 invitation = '';
             }
-            if (incoming) history.replaceState(null, '', location.pathname + location.search + '#benedictions');
+            if (incoming) history.replaceState(null, '', location.pathname + location.search);
         }
 
         async function familyRequest(operation, payload) {
@@ -544,6 +558,7 @@
         function updateFamilyControls() {
             byId('blessing-form').hidden = !sharedReady;
             byId('add-family-photo').hidden = !sharedReady;
+            byId('home-family-actions').hidden = !sharedReady;
             const local = localItems();
             const sharedIds = new Set([...memories.blessings, ...memories.photos].map(item => item.id));
             byId('share-local').hidden = !sharedReady || ![...local.blessings, ...local.photos].some(item => !sharedIds.has(item.id));
@@ -752,13 +767,13 @@
                 : sharedReady ? 'Le livre d’or attend son premier message.' : 'Livre d’or réservé aux proches invités.';
             for (const item of memories.blessings) {
                 const card = document.createElement('article');
-                card.className = 'min-w-0 bg-royal/40 rounded-2xl p-5 card-gold-border';
+                card.className = 'min-w-0 reading-card rounded-2xl p-5 card-gold-border';
                 card.innerHTML = `<div class="flex justify-between gap-3 mb-3">
                     <span class="text-3xl"></span>
-                    <button type="button" class="text-cream/70 hover:text-red-300 text-xs">Supprimer</button>
-                </div><p class="text-sm sm:text-base italic mb-4 whitespace-pre-wrap break-words"></p>
-                <div class="flex justify-between gap-3 border-t border-gold/20 pt-3 text-xs">
-                    <strong class="text-goldLight break-words"></strong><time class="text-cream/70"></time>
+                    <button type="button" class="min-h-[44px] px-2 text-cream hover:text-red-300 text-sm">Supprimer</button>
+                </div><p class="text-lg leading-relaxed text-cream mb-4 whitespace-pre-wrap break-words"></p>
+                <div class="flex flex-wrap justify-between gap-3 border-t border-gold/30 pt-3 text-base">
+                    <strong class="text-goldLight break-words"></strong><time class="text-cream"></time>
                 </div>`;
                 card.querySelector('span').textContent = item.icon;
                 card.querySelector('p').textContent = `« ${item.text} »`;
@@ -824,12 +839,15 @@
             }
             const id = pendingBlessing?.author === author && pendingBlessing.text === text && pendingBlessing.icon === icon ? pendingBlessing.id : crypto.randomUUID();
             pendingBlessing = { id, author, text, icon };
+            byId('blessing-published').hidden = true;
             button.disabled = true;
             try {
                 if (await mutateFamily('add', 'blessings', pendingBlessing)) {
                     pendingBlessing = null;
                     byId('blessing-text').value = '';
-                    showToast('Ta bénédiction est visible par la famille.');
+                    const confirmation = byId('blessing-published');
+                    confirmation.hidden = false;
+                    confirmation.textContent = '✓ Bénédiction publiée ! Toute la famille peut la lire.';
                 }
             } finally {
                 button.disabled = false;
