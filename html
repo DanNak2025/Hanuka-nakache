@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joyeux Hanoucca - Famille NAKACHE</title>
+    
+    <!-- Google Fonts : Cinzel pour la noblesse festive et Montserrat pour une lisibilité parfaite -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuration Tailwind personnalisée -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#0B192C',
+                        royal: '#1E3E62',
+                        gold: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                        cream: '#FDFBF7',
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'twinkle': 'twinkle 3s ease-in-out infinite',
+                        'flicker': 'flicker 1.5s infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        twinkle: {
+                            '0%, 100%': { opacity: '0.2', transform: 'scale(0.8)' },
+                            '50%': { opacity: '1', transform: 'scale(1.1)' },
+                        },
+                        flicker: {
+                            '0%': { transform: 'scale(1) rotate(-2deg)', opacity: '0.9' },
+                            '50%': { transform: 'scale(1.08) rotate(2deg)', opacity: '1' },
+                            '100%': { transform: 'scale(0.96) rotate(-1deg)', opacity: '0.85' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Styles personnalisés légers pour les effets lumineux et la flamme -->
+    <style>
+        body {
+            background-color: #0B192C;
+            color: #FDFBF7;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Effet de lueur dorée sur les textes et bordures */
+        .gold-glow {
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .card-gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(212, 175, 55, 0.05);
+        }
+
+        /* Flamme de bougie interactive */
+        .candle-flame {
+            width: 14px;
+            height: 24px;
+            background: radial-gradient(ellipse at bottom, #ffffff 10%, #ffeb3b 45%, #ff9800 80%, rgba(255, 87, 34, 0) 100%);
+            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+            box-shadow: 0 0 15px 4px rgba(255, 215, 0, 0.7), 0 0 30px 10px rgba(255, 140, 0, 0.4);
+            transform-origin: bottom center;
+            animation: flicker 1.2s infinite alternate;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .candle-unlit {
+            opacity: 0;
+            transform: scale(0.2);
+            pointer-events: none;
+        }
+
+        /* Arrière-plan étoilé subtil */
+        .star-bg {
+            background-image: 
+                radial-gradient(1.5px 1.5px at 20px 30px, #F3E5AB, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #D4AF37, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #F3E5AB, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 230px 80px, #D4AF37, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 280px 280px;
+        }
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B192C;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E3E62;
+            border-radius: 4px;
+            border: 1px solid #D4AF37;
+        }
+    </style>
+</head>
+<body class="star-bg min-h-screen flex flex-col selection:bg-gold selection:text-midnight">
+
+    <!-- Notification Toast (Remplace alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Barre de Navigation -->
+    <nav class="sticky top-0 z-40 bg-midnight/90 backdrop-blur-md border-b border-gold/20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <a href="#" class="flex items-center gap-3 group">
+                    <!-- Étoile de David SVG -->
+                    <svg class="w-8 h-8 text-gold transition-transform duration-500 group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <polygon points="12 2 20.66 17 3.34 17 12 2" />
+                        <polygon points="12 22 3.34 7 20.66 7 12 22" />
+                    </svg>
+                    <span class="font-serif text-lg sm:text-xl font-bold tracking-wider text-goldLight">FAMILLE NAKACHE</span>
+                </a>
+
+                <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                    <a href="#hanoukkia" class="text-cream/80 hover:text-gold transition-colors">La Hanoukkia</a>
+                    <a href="#benedictions" class="text-cream/80 hover:text-gold transition-colors">Bénédictions aux Grands-Parents</a>
+                    <a href="#galerie" class="text-cream/80 hover:text-gold transition-colors">Photos de Famille</a>
+                    <button onclick="toggleHelpModal(true)" class="px-4 py-2 rounded-full border border-gold/50 text-goldLight hover:bg-gold hover:text-midnight transition-all flex items-center gap-2">
+                        <span>Guide & Partage</span>
+                    </button>
+                </div>
+
+                <!-- Bouton Menu Mobile -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button onclick="toggleHelpModal(true)" class="p-2 text-xs rounded-full border border-gold/50 text-goldLight">
+                        Aide GitHub
+                    </button>
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg text-goldLight hover:bg-royal/50 focus:outline-none" aria-label="Menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile Déroulant -->
+        <div id="mobile-menu" class="hidden md:hidden bg-midnight border-b border-gold/20 px-4 pt-2 pb-4 space-y-2">
+            <a href="#hanoukkia" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">La Hanoukkia</a>
+            <a href="#benedictions" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">Bénédictions aux Grands-Parents</a>
+            <a href="#galerie" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">Photos de Famille</a>
+        </div>
+    </nav>
+
+    <!-- Section Héro & Hanoukkia Interactive -->
+    <header id="hanoukkia" class="relative pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 overflow-hidden">
+        <!-- Étoiles décoratives flottantes -->
+        <div class="absolute top-12 left-8 text-gold/30 animate-twinkle hidden sm:block">
+            <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="absolute top-24 right-12 text-goldLight/25 animate-twinkle" style="animation-delay: 1.5s;">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 20.66 17 3.34 17 12 2"/><polygon points="12 22 3.34 7 20.66 7 12 22"/></svg>
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-royal/60 border border-gold/30 text-goldLight text-xs sm:text-sm tracking-widest uppercase mb-6">
+                <span>חַג חֲנוּכָּה שָׂמֵחַ</span>
+                <span>•</span>
+                <span>Fête des Lumières</span>
+            </div>
+
+            <h1 class="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-goldLight via-gold to-goldLight gold-glow leading-tight mb-4">
+                Joyeux Hanoucca<br>Famille NAKACHE
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-cream/85 text-base sm:text-lg font-light leading-relaxed mb-10">
+                Que la lumière des bougies de Hanoucca illumine notre foyer, réchauffe les cœurs de nos chers grands-parents et unisse toute la famille Nakache dans la joie, la santé et la paix.
+            </p>
+
+            <!-- Hanoukkia Interactive -->
+            <div class="bg-gradient-to-b from-royal/40 to-midnight/80 rounded-3xl p-6 sm:p-10 card-gold-border max-w-3xl mx-auto">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                    <div class="text-left">
+                        <h2 class="font-serif text-xl sm:text-2xl text-goldLight font-semibold">Allumez la Hanoukkia</h2>
+                        <p class="text-xs sm:text-sm text-cream/70">Cliquez sur une bougie ou choisissez le soir de Hanoucca</p>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2" id="night-buttons">
+                        <!-- Boutons générés par JS pour les 8 soirs -->
+                    </div>
+                </div>
+
+                <!-- Représentation Visuelle de la Hanoukkia -->
+                <div class="relative pt-10 pb-4 px-2 flex flex-col items-center select-none">
+                    <div class="flex items-end justify-center gap-2 sm:gap-5 md:gap-7 w-full max-w-xl" id="menorah-candles">
+                        <!-- 4 bougies à gauche -->
+                        <!-- Shamash au centre (plus haut) -->
+                        <!-- 4 bougies à droite -->
+                    </div>
+                    <!-- Base dorée de la Hanoukkia -->
+                    <div class="w-4/5 max-w-md h-3 bg-gradient-to-r from-gold/40 via-gold to-gold/40 rounded-full mt-1 shadow-lg shadow-gold/20"></div>
+                    <div class="w-6 h-10 bg-gradient-to-b from-gold to-gold/60"></div>
+                    <div class="w-36 h-3 bg-gradient-to-r from-gold/50 via-goldLight to-gold/50 rounded-t-xl"></div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+                    <button onclick="lightAllCandles()" class="px-4 py-2 rounded-xl bg-gold text-midnight font-semibold text-sm hover:bg-goldLight transition-all shadow-md shadow-gold/20">
+                        ✨ Tout allumer (8ème soir)
+                    </button>
+                    <button onclick="extinguishAllCandles()" class="px-4 py-2 rounded-xl bg-royal/80 text-cream border border-gold/30 text-sm hover:bg-royal transition-all">
+                        Éteindre les bougies
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section 2 : Bénédictions & Messages pour les Grands-Parents -->
+    <section id="benedictions" class="py-16 px-4 bg-gradient-to-b from-midnight via-royal/20 to-midnight border-t border-gold/15">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-gold text-2xl">🕎</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-goldLight mt-2 mb-4">
+                    Bénédictions & Messages pour les Grands-Parents
+                </h2>
+                <p class="text-cream/80 text-sm sm:text-base">
+                    Un livre d'or lumineux dédié à nos piliers, Papi et Mamie Nakache. Laissez-leur un mot tendre, un souvenir ou une bénédiction pour cette fête des lumières.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Formulaire d'ajout de bénédiction -->
+                <div class="lg:col-span-5 bg-royal/40 backdrop-blur-sm rounded-3xl p-6 sm:p-8 card-gold-border">
+                    <h3 class="font-serif text-xl text-goldLight font-semibold mb-6 flex items-center gap-2">
+                        <span>✍️</span> Écrire une bénédiction
+                    </h3>
+
+                    <form id="blessing-form" class="space-y-5">
+                        <div>
+                            <label for="author-name" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre prénom (et branche de la famille)</label>
+                            <input type="text" id="author-name" required placeholder="Ex : Sarah, Léa & David..."
+                                class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-goldLight/90 mb-2">Choisissez un symbole de Hanoucca</label>
+                            <div class="grid grid-cols-5 gap-2" id="icon-selector">
+                                <button type="button" data-icon="🕎" class="icon-btn active p-3 rounded-xl bg-gold/20 border-2 border-gold text-2xl flex items-center justify-center transition-all hover:scale-105" title="Hanoukkia">🕎</button>
+                                <button type="button" data-icon="🕍" class="icon-btn p-3 rounded-xl bg-midnight/70 border border-gold/20 text-2xl flex items-center justify-center transition-all hover:scale-105" title="Toupie / Dreidel">🎯</button>
+                                <button type="button" data-icon="🍩" class="icon-btn p-3 rounded-xl bg-midnight/70 border border-gold/20 text-2xl flex items-center justify-center transition-all hover:scale-105" title="Beignet / Soufganiya">🍩</button>
+                                <button type="button" data-icon="✡️" class="icon-btn p-3 rounded-xl bg-midnight/70 border border-gold/20 text-2xl flex items-center justify-center transition-all hover:scale-105" title="Étoile de David">✡️</button>
+                                <button type="button" data-icon="❤️" class="icon-btn p-3 rounded-xl bg-midnight/70 border border-gold/20 text-2xl flex items-center justify-center transition-all hover:scale-105" title="Cœur">❤️</button>
+                            </div>
+                            <input type="hidden" id="selected-icon" value="🕎">
+                        </div>
+
+                        <div>
+                            <label for="blessing-text" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre message pour nos Grands-Parents</label>
+                            <textarea id="blessing-text" rows="4" required placeholder="Chers Papi et Mamie, en ce Hanoucca nous vous souhaitons..."
+                                class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold to-goldLight text-midnight font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-gold/20 flex items-center justify-center gap-2">
+                            <span>✨ Publier ma bénédiction</span>
+                        </button>
+                    </form>
+
+                    <!-- Barre d'outils de sauvegarde / partage -->
+                    <div class="mt-6 pt-5 border-t border-gold/20 flex flex-wrap items-center justify-between gap-2 text-xs text-cream/70">
+                        <span>Sauvegardé sur cet appareil</span>
+                        <div class="flex gap-2">
+                            <button onclick="exportFamilyData()" class="px-3 py-1.5 rounded-lg bg-midnight/80 border border-gold/30 text-goldLight hover:bg-gold hover:text-midnight transition-colors">
+                                📤 Exporter / Partager
+                            </button>
+                            <label class="px-3 py-1.5 rounded-lg bg-midnight/80 border border-gold/30 text-goldLight hover:bg-gold hover:text-midnight transition-colors cursor-pointer">
+                                📥 Importer
+                                <input type="file" id="import-file" accept=".json" class="hidden" onchange="importFamilyData(event)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mur des bénédictions -->
+                <div class="lg:col-span-7">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-sm text-goldLight font-medium" id="blessings-count">4 bénédictions affichées</span>
+                        <span class="text-xs text-cream/60 italic">Avec tout notre amour ❤️</span>
+                    </div>
+
+                    <div id="blessings-wall" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Les cartes de bénédictions sont injectées ici par JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3 : Galerie Photos & Souvenirs de Famille -->
+    <section id="galerie" class="py-16 px-4 border-t border-gold/15">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <span class="text-gold text-sm uppercase tracking-widest font-semibold">Album Familial</span>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-goldLight mt-1">
+                        Souvenirs & Photos de Famille
+                    </h2>
+                    <p class="text-cream/80 text-sm sm:text-base mt-2 max-w-xl">
+                        Partagez vos photos d'allumage des bougies, des beignets maison et des beaux moments réunis autour des grands-parents.
+                    </p>
+                </div>
+
+                <button onclick="togglePhotoModal(true)" class="self-start md:self-auto px-6 py-3.5 rounded-xl bg-gold text-midnight font-bold text-sm sm:text-base hover:bg-goldLight transition-all shadow-lg shadow-gold/20 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Ajouter une photo</span>
+                </button>
+            </div>
+
+            <!-- Grille de photos -->
+            <div id="photo-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Photos injectées par JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pied de page -->
+    <footer class="mt-auto bg-midnight border-t border-gold/20 py-10 px-4">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+            <div>
+                <p class="font-serif text-lg text-goldLight font-semibold">Famille NAKACHE • Hanoucca</p>
+                <p class="text-xs text-cream/60 mt-1">Que la lumière et la bénédiction demeurent toujours dans notre maison.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 text-xs text-cream/70">
+                <button onclick="toggleHelpModal(true)" class="hover:text-gold underline">Comment héberger sur GitHub Pages ?</button>
+                <span>•</span>
+                <button onclick="resetDemoData()" class="hover:text-red-400">Réinitialiser les exemples</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALE : Ajouter une photo -->
+    <div id="photo-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-midnight border border-gold/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-float" style="animation: none;">
+            <button onclick="togglePhotoModal(false)" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
+            
+            <h3 class="font-serif text-2xl text-goldLight font-bold mb-2">Ajouter un souvenir photo</h3>
+            <p class="text-xs text-cream/70 mb-6">Choisissez une photo depuis votre appareil ou collez un lien d'image.</p>
+
+            <form id="photo-form" class="space-y-4">
+                <!-- Onglets Fichier vs URL -->
+                <div class="flex rounded-xl bg-royal/40 p-1 border border-gold/20">
+                    <button type="button" id="tab-file" onclick="switchPhotoSource('file')" class="flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all">
+                        📱 Depuis mon appareil
+                    </button>
+                    <button type="button" id="tab-url" onclick="switchPhotoSource('url')" class="flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all">
+                        🔗 Lien d'image (URL)
+                    </button>
+                </div>
+
+                <!-- Zone Upload Fichier -->
+                <div id="source-file-box">
+                    <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gold/40 rounded-2xl cursor-pointer bg-royal/20 hover:bg-royal/30 transition-all">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                            <span class="text-3xl mb-1">📸</span>
+                            <p class="text-sm text-goldLight font-medium">Cliquez pour sélectionner une photo</p>
+                            <p class="text-xs text-cream/50 mt-1">JPG, PNG ou WebP (compressée automatiquement)</p>
+                        </div>
+                        <input id="photo-file-input" type="file" accept="image/*" class="hidden" onchange="handleImageFile(event)">
+                    </label>
+                </div>
+
+                <!-- Zone URL -->
+                <div id="source-url-box" class="hidden">
+                    <label class="block text-xs font-medium text-goldLight mb-1">Adresse web de la photo (https://...)</label>
+                    <input type="url" id="photo-url-input" placeholder="https://exemple.com/ma-photo.jpg" oninput="previewImageUrl(this.value)"
+                        class="w-full px-4 py-3 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
+                </div>
+
+                <!-- Aperçu -->
+                <div id="photo-preview-container" class="hidden">
+                    <p class="text-xs text-goldLight mb-1">Aperçu :</p>
+                    <img id="photo-preview-img" src="" alt="Aperçu" class="w-full h-44 object-cover rounded-xl border border-gold/30">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-goldLight mb-1">Légende de la photo</label>
+                    <input type="text" id="photo-caption" required placeholder="Ex : Allumage du 4ème soir chez Papi et Mamie !"
+                        class="w-full px-4 py-2.5 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-goldLight mb-1">Ajoutée par</label>
+                    <input type="text" id="photo-author" required placeholder="Ex : Tonton Marc"
+                        class="w-full px-4 py-2.5 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-gold text-midnight font-bold text-sm hover:bg-goldLight transition-all mt-2">
+                    Ajouter à l'album Nakache
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE : Lightbox (Vue agrandie des photos) -->
+    <div id="lightbox-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeLightbox(event)">
+        <div class="max-w-4xl w-full flex flex-col items-center relative" onclick="event.stopPropagation()">
+            <button onclick="toggleLightbox(false)" class="self-end mb-3 px-3 py-1 rounded-full bg-royal/80 text-goldLight hover:bg-gold hover:text-midnight text-sm font-medium transition-colors">
+                Fermer ✕
+            </button>
+            <img id="lightbox-img" src="" alt="Photo agrandie" class="max-h-[75vh] w-auto rounded-2xl border border-gold/40 shadow-2xl object-contain">
+            <div class="mt-4 text-center max-w-2xl">
+                <p id="lightbox-caption" class="text-cream font-medium text-base sm:text-lg"></p>
+                <p id="lightbox-meta" class="text-goldLight/80 text-xs sm:text-sm mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE : Guide GitHub Pages & Fonctionnement du stockage -->
+    <div id="help-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-midnight border border-gold/40 rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
+            <button onclick="toggleHelpModal(false)" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
+            
+            <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">🚀</span>
+                <h3 class="font-serif text-xl sm:text-2xl text-goldLight font-bold">Déployer sur GitHub Pages & Partager</h3>
+            </div>
+
+            <div class="space-y-5 text-sm text-cream/85 leading-relaxed">
+                <div class="bg-royal/30 p-4 rounded-2xl border border-gold/20">
+                    <h4 class="font-semibold text-goldLight mb-1">1. Comment mettre ce site en ligne gratuitement ?</h4>
+                    <ol class="list-decimal list-inside space-y-1.5 text-xs sm:text-sm text-cream/80">
+                        <li>Créez un compte gratuit sur <strong>GitHub.com</strong> et cliquez sur <em>"New repository"</em> (nommez-le par exemple <code class="text-goldLight">hanoucca-nakache</code>).</li>
+                        <li>Ajoutez ce fichier en le nommant exactement <code class="text-goldLight font-mono">index.html</code>.</li>
+                        <li>Allez dans l'onglet <strong>Settings</strong> (Paramètres) &rarr; <strong>Pages</strong> (menu de gauche).</li>
+                        <li>Sous <em>"Branch"</em>, sélectionnez <strong>main</strong> puis cliquez sur <strong>Save</strong>.</li>
+                        <li>En 1 minute, votre lien <code class="text-goldLight">https://votre-pseudo.github.io/hanoucca-nakache/</code> est prêt à être envoyé sur le groupe WhatsApp de la famille !</li>
+                    </ol>
+                </div>
+
+                <div class="bg-royal/30 p-4 rounded-2xl border border-gold/20">
+                    <h4 class="font-semibold text-goldLight mb-1">2. Comment sont sauvegardés les messages et photos ?</h4>
+                    <p class="text-xs sm:text-sm text-cream/80">
+                        GitHub Pages étant un hébergement statique (sans serveur), tout ce que vous ajoutez est sauvegardé instantanément dans le navigateur de votre appareil (<code class="text-goldLight">localStorage</code>).
+                    </p>
+                    <p class="text-xs sm:text-sm text-cream/80 mt-2">
+                        <strong>Astuce Famille :</strong> Utilisez le bouton <strong>« Exporter / Partager »</strong> dans la section des bénédictions pour télécharger un petit fichier récapitulatif (<code class="text-goldLight">.json</code>) et l'envoyer sur WhatsApp aux grands-parents : ils n'auront qu'à cliquer sur <strong>« Importer »</strong> pour voir apparaître toutes vos photos et bénédictions !
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-right">
+                <button onclick="toggleHelpModal(false)" class="px-6 py-2.5 rounded-xl bg-gold text-midnight font-semibold text-sm hover:bg-goldLight transition-all">
+                    J'ai compris, Hag Sameah !
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Principal -->
+    <script>
+        // ==========================================
+        // 1. DONNÉES INITIALES & GESTION DU STOCKAGE
+        // ==========================================
+        const STORAGE_KEYS = {
+            BLESSINGS: 'nakache_hanukkah_blessings_v1',
+            PHOTOS: 'nakache_hanukkah_photos_v1',
+            CANDLES: 'nakache_hanukkah_candles_v1'
+        };
+
+        const DEFAULT_BLESSINGS = [
+            {
+                id: 'b1',
+                author: 'Les petits-enfants (Léa, Noa & Ethan)',
+                icon: '🕎',
+                text: 'Chers Papi et Mamie, merci d’être la lumière qui guide toute notre famille. Nous vous souhaitons un merveilleux Hanoucca rempli de santé, de rires et de délicieux beignets ! On vous aime fort.',
+                date: '1er soir de Hanoucca'
+            },
+            {
+                id: 'b2',
+                author: 'David & Sarah Nakache',
+                icon: '✡️',
+                text: 'Que les lumières de cette Hanoukkia vous apportent autant de bonheur et de chaleur que vous nous en donnez toute l’année. Hag Hanoucca Sameah à nos parents chéris !',
+                date: '2ème soir de Hanoucca'
+            },
+            {
+                id: 'b3',
+                author: 'Tonton Marc & Famille',
+                icon: '🍩',
+                text: 'Une pensée pleine de tendresse pour vous deux en cette fête des miracles. Longue vie en bonne santé entourés de tous vos enfants et petits-enfants.',
+                date: '3ème soir de Hanoucca'
+            },
+            {
+                id: 'b4',
+                author: 'Cousin Jonathan',
+                icon: '❤️',
+                text: 'Impossible d’imaginer Hanoucca sans penser à vos sourires et aux soirées tous réunis. Que la bénédiction d’Hashem repose toujours sur votre maison.',
+                date: '4ème soir de Hanoucca'
+            }
+        ];
+
+        const DEFAULT_PHOTOS = [
+            {
+                id: 'p1',
+                url: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=900&q=80',
+                caption: 'Les lumières de la Hanoukkia brillent pour toute la famille Nakache',
+                author: 'Famille Nakache',
+                date: 'Souvenir de fête'
+            },
+            {
+                id: 'p2',
+                url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80',
+                caption: 'Douceurs et partage en famille autour des grands-parents',
+                author: 'Sarah N.',
+                date: 'Soirée de Hanoucca'
+            },
+            {
+                id: 'p3',
+                url: 'https://images.unsplash.com/photo-1576097449798-7c7f90e1248a?auto=format&fit=crop&w=900&q=80',
+                caption: 'Que chaque flamme apporte joie et santé à Papi et Mamie',
+                author: 'David N.',
+                date: 'Allumage des bougies'
+            }
+        ];
+
+        let blessings = [];
+        let photos = [];
+        // État des 9 bougies (indices 0..3 gauche, 4 shamash, 5..8 droite)
+        let candlesState = [false, false, false, false, true, false, false, false, false];
+        let currentUploadedDataUrl = '';
+        let currentPhotoSource = 'file';
+
+        // Chargement depuis localStorage avec gestion d'erreur
+        function loadData() {
+            try {
+                const savedBlessings = localStorage.getItem(STORAGE_KEYS.BLESSINGS);
+                blessings = savedBlessings ? JSON.parse(savedBlessings) : [...DEFAULT_BLESSINGS];
+
+                const savedPhotos = localStorage.getItem(STORAGE_KEYS.PHOTOS);
+                photos = savedPhotos ? JSON.parse(savedPhotos) : [...DEFAULT_PHOTOS];
+
+                const savedCandles = localStorage.getItem(STORAGE_KEYS.CANDLES);
+                if (savedCandles) {
+                    candlesState = JSON.parse(savedCandles);
+                }
+            } catch (e) {
+                console.error("Erreur de lecture du stockage local:", e);
+                blessings = [...DEFAULT_BLESSINGS];
+                photos = [...DEFAULT_PHOTOS];
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.BLESSINGS, JSON.stringify(blessings));
+                localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+                localStorage.setItem(STORAGE_KEYS.CANDLES, JSON.stringify(candlesState));
+            } catch (e) {
+                showToast("Espace de stockage local saturé. Essayez avec des photos plus légères.", "error");
+            }
+        }
+
+        // ==========================================
+        // 2. HANOUKKIA INTERACTIVE
+        // ==========================================
+        function initHanukkiah() {
+            const nightButtonsContainer = document.getElementById('night-buttons');
+            nightButtonsContainer.innerHTML = '';
+
+            for (let night = 1; night <= 8; night++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = `Soir ${night}`;
+                btn.className = 'px-2.5 py-1 rounded-lg bg-midnight/80 border border-gold/30 text-xs text-goldLight hover:bg-gold hover:text-midnight transition-colors';
+                btn.onclick = () => setHanukkahNight(night);
+                nightButtonsContainer.appendChild(btn);
+            }
+
+            renderCandles();
+        }
+
+        function renderCandles() {
+            const container = document.getElementById('menorah-candles');
+            container.innerHTML = '';
+
+            // 9 positions : 0,1,2,3 (branches gauches) | 4 (Shamash au centre) | 5,6,7,8 (branches droites)
+            for (let i = 0; i < 9; i++) {
+                const isShamash = (i === 4);
+                const isLit = candlesState[i];
+
+                const candleWrapper = document.createElement('div');
+                candleWrapper.className = 'flex flex-col items-center cursor-pointer group';
+                candleWrapper.onclick = () => toggleSingleCandle(i);
+                candleWrapper.title = isShamash ? 'Shamash (Bougie serviteur)' : 'Cliquez pour allumer/éteindre';
+
+                // Flamme
+                const flame = document.createElement('div');
+                flame.className = `candle-flame mb-1 ${isLit ? '' : 'candle-unlit'}`;
+
+                // Corps de la bougie
+                const body = document.createElement('div');
+                const heightClass = isShamash ? 'h-24 sm:h-28' : 'h-16 sm:h-20';
+                const colorClass = isShamash 
+                    ? 'bg-gradient-to-b from-goldLight via-gold to-amber-600' 
+                    : 'bg-gradient-to-b from-cream via-blue-100 to-blue-300';
+                body.className = `w-2.5 sm:w-3.5 ${heightClass} ${colorClass} rounded-t-sm shadow-md transition-transform group-hover:scale-105`;
+
+                // Support doré
+                const holder = document.createElement('div');
+                holder.className = `w-4 sm:w-5 ${isShamash ? 'h-6' : 'h-3'} bg-gold rounded-b-md border-t border-goldLight`;
+
+                candleWrapper.appendChild(flame);
+                candleWrapper.appendChild(body);
+                candleWrapper.appendChild(holder);
+                container.appendChild(candleWrapper);
+            }
+        }
+
+        function toggleSingleCandle(index) {
+            candlesState[index] = !candlesState[index];
+            saveData();
+            renderCandles();
+        }
+
+        // Traditionnellement on allume de droite à gauche (indices 8 vers 5, puis 3 vers 0) + Shamash (4)
+        function setHanukkahNight(night) {
+            candlesState = [false, false, false, false, true, false, false, false, false];
+            const orderRightToLeft = [8, 7, 6, 5, 3, 2, 1, 0];
+            for (let i = 0; i < night; i++) {
+                candlesState[orderRightToLeft[i]] = true;
+            }
+            saveData();
+            renderCandles();
+            showToast(`Hanoukkia allumée pour le ${night}${night === 1 ? 'er' : 'ème'} soir ! 🕎`);
+        }
+
+        function lightAllCandles() {
+            setHanukkahNight(8);
+        }
+
+        function extinguishAllCandles() {
+            candlesState = [false, false, false, false, false, false, false, false, false];
+            saveData();
+            renderCandles();
+        }
+
+        // ==========================================
+        // 3. BÉNÉDICTIONS AUX GRANDS-PARENTS
+        // ==========================================
+        function initIconSelector() {
+            const buttons = document.querySelectorAll('.icon-btn');
+            const hiddenInput = document.getElementById('selected-icon');
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => {
+                        b.classList.remove('bg-gold/20', 'border-2', 'border-gold');
+                        b.classList.add('bg-midnight/70', 'border', 'border-gold/20');
+                    });
+                    btn.classList.remove('bg-midnight/70', 'border', 'border-gold/20');
+                    btn.classList.add('bg-gold/20', 'border-2', 'border-gold');
+                    hiddenInput.value = btn.getAttribute('data-icon');
+                });
+            });
+        }
+
+        function renderBlessings() {
+            const wall = document.getElementById('blessings-wall');
+            const countLabel = document.getElementById('blessings-count');
+            wall.innerHTML = '';
+
+            countLabel.textContent = `${blessings.length} bénédiction${blessings.length > 1 ? 's' : ''} pour nos grands-parents`;
+
+            blessings.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'bg-gradient-to-br from-royal/50 to-midnight/90 rounded-2xl p-5 sm:p-6 card-gold-border flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 relative group';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <span class="text-3xl bg-midnight/70 p-2 rounded-xl border border-gold/20">${escapeHTML(item.icon)}</span>
+                            <button onclick="deleteBlessing('${item.id}')" class="opacity-0 group-hover:opacity-100 focus:opacity-100 text-xs text-cream/40 hover:text-red-400 transition-opacity p-1" title="Supprimer ce message">
+                                ✕
+                            </button>
+                        </div>
+                        <p class="text-cream/95 text-sm sm:text-base leading-relaxed italic mb-4">
+                            « ${escapeHTML(item.text)} »
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-gold/15 flex items-center justify-between text-xs">
+                        <span class="font-semibold text-goldLight">${escapeHTML(item.author)}</span>
+                        <span class="text-cream/50">${escapeHTML(item.date)}</span>
+                    </div>
+                `;
+                wall.appendChild(card);
+            });
+        }
+
+        document.getElementById('blessing-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const authorInput = document.getElementById('author-name');
+            const textInput = document.getElementById('blessing-text');
+            const iconInput = document.getElementById('selected-icon');
+
+            const newBlessing = {
+                id: 'b_' + Date.now(),
+                author: authorInput.value.trim(),
+                icon: iconInput.value,
+                text: textInput.value.trim(),
+                date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+            };
+
+            blessings.unshift(newBlessing);
+            saveData();
+            renderBlessings();
+
+            authorInput.value = '';
+            textInput.value = '';
+            showToast("Votre bénédiction pour Papi et Mamie a été ajoutée ! ✨");
+        });
+
+        function deleteBlessing(id) {
+            blessings = blessings.filter(b => b.id !== id);
+            saveData();
+            renderBlessings();
+            showToast("Message retiré.");
+        }
+
+        // ==========================================
+        // 4. GALERIE PHOTOS & LIGHTBOX
+        // ==========================================
+        function renderPhotos() {
+            const gallery = document.getElementById('photo-gallery');
+            gallery.innerHTML = '';
+
+            photos.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'group relative bg-royal/30 rounded-2xl overflow-hidden card-gold-border flex flex-col';
+
+                card.innerHTML = `
+                    <div class="relative h-64 overflow-hidden cursor-pointer bg-midnight" onclick="openLightbox('${photo.id}')">
+                        <img src="${photo.url}" alt="${escapeHTML(photo.caption)}" 
+                             onerror="this.src='https://placehold.co/800x600/1E3E62/F3E5AB?text=Famille+Nakache+Hanoucca'"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                        <span class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-midnight/80 text-goldLight text-xs border border-gold/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                            🔍 Agrandir
+                        </span>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <p class="text-cream text-sm font-medium mb-2">${escapeHTML(photo.caption)}</p>
+                        <div class="flex items-center justify-between text-xs text-cream/60 pt-2 border-t border-gold/10">
+                            <span>Par <strong class="text-goldLight">${escapeHTML(photo.author)}</strong></span>
+                            <button onclick="deletePhoto('${photo.id}')" class="text-cream/40 hover:text-red-400 transition-colors">Supprimer</button>
+                        </div>
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        function switchPhotoSource(mode) {
+            currentPhotoSource = mode;
+            const tabFile = document.getElementById('tab-file');
+            const tabUrl = document.getElementById('tab-url');
+            const boxFile = document.getElementById('source-file-box');
+            const boxUrl = document.getElementById('source-url-box');
+
+            if (mode === 'file') {
+                tabFile.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all';
+                tabUrl.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all';
+                boxFile.classList.remove('hidden');
+                boxUrl.classList.add('hidden');
+            } else {
+                tabUrl.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all';
+                tabFile.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all';
+                boxUrl.classList.remove('hidden');
+                boxFile.classList.add('hidden');
+            }
+        }
+
+        // Compression d'image côté client pour éviter de saturer le localStorage
+        function handleImageFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 900;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    currentUploadedDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+                    showPhotoPreview(currentUploadedDataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function previewImageUrl(url) {
+            if (url && url.startsWith('http')) {
+                showPhotoPreview(url);
+            }
+        }
+
+        function showPhotoPreview(src) {
+            const container = document.getElementById('photo-preview-container');
+            const img = document.getElementById('photo-preview-img');
+            img.src = src;
+            container.classList.remove('hidden');
+        }
+
+        document.getElementById('photo-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const caption = document.getElementById('photo-caption').value.trim();
+            const author = document.getElementById('photo-author').value.trim();
+            const urlInput = document.getElementById('photo-url-input').value.trim();
+
+            const finalImage = currentPhotoSource === 'file' ? currentUploadedDataUrl : urlInput;
+
+            if (!finalImage) {
+                showToast("Veuillez sélectionner une photo ou indiquer un lien valide.", "error");
+                return;
+            }
+
+            const newPhoto = {
+                id: 'p_' + Date.now(),
+                url: finalImage,
+                caption: caption,
+                author: author,
+                date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+            };
+
+            photos.unshift(newPhoto);
+            saveData();
+            renderPhotos();
+
+            // Réinitialisation du formulaire
+            document.getElementById('photo-form').reset();
+            document.getElementById('photo-preview-container').classList.add('hidden');
+            currentUploadedDataUrl = '';
+            togglePhotoModal(false);
+            showToast("Photo ajoutée à l'album de la famille Nakache ! 📸");
+        });
+
+        function deletePhoto(id) {
+            photos = photos.filter(p => p.id !== id);
+            saveData();
+            renderPhotos();
+            showToast("Photo supprimée de l'album.");
+        }
+
+        function openLightbox(id) {
+            const photo = photos.find(p => p.id === id);
+            if (!photo) return;
+
+            document.getElementById('lightbox-img').src = photo.url;
+            document.getElementById('lightbox-caption').textContent = photo.caption;
+            document.getElementById('lightbox-meta').textContent = `Ajoutée par ${photo.author} • ${photo.date}`;
+            toggleLightbox(true);
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox-modal') {
+                toggleLightbox(false);
+            }
+        }
+
+        // ==========================================
+        // 5. EXPORT / IMPORT POUR PARTAGE FAMILIAL
+        // ==========================================
+        function exportFamilyData() {
+            const data = {
+                family: 'NAKACHE',
+                exportedAt: new Date().toISOString(),
+                blessings: blessings,
+                photos: photos
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hanoucca-nakache-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("Fichier de partage téléchargé ! Envoyez-le à la famille sur WhatsApp.");
+        }
+
+        function importFamilyData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported.blessings)) {
+                        // Fusion sans doublons par ID
+                        const existingIds = new Set(blessings.map(b => b.id));
+                        imported.blessings.forEach(b => {
+                            if (!existingIds.has(b.id)) blessings.push(b);
+                        });
+                    }
+                    if (Array.isArray(imported.photos)) {
+                        const existingPhotoIds = new Set(photos.map(p => p.id));
+                        imported.photos.forEach(p => {
+                            if (!existingPhotoIds.has(p.id)) photos.push(p);
+                        });
+                    }
+                    saveData();
+                    renderBlessings();
+                    renderPhotos();
+                    showToast("Les bénédictions et photos de la famille ont été importées ! 🎉");
+                } catch (err) {
+                    showToast("Fichier invalide. Veuillez sélectionner un fichier .json exporté depuis ce site.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetDemoData() {
+            localStorage.removeItem(STORAGE_KEYS.BLESSINGS);
+            localStorage.removeItem(STORAGE_KEYS.PHOTOS);
+            loadData();
+            renderBlessings();
+            renderPhotos();
+            showToast("Les exemples de démonstration ont été restaurés.");
+        }
+
+        // ==========================================
+        // 6. UTILITAIRES UI (MODALES, TOASTS, MENU)
+        // ==========================================
+        function togglePhotoModal(show) {
+            const modal = document.getElementById('photo-modal');
+            modal.classList.toggle('hidden', !show);
+        }
+
+        function toggleLightbox(show) {
+            const modal = document.getElementById('lightbox-modal');
+            modal.classList.toggle('hidden', !show);
+        }
+
+        function toggleHelpModal(show) {
+            const modal = document.getElementById('help-modal');
+            modal.classList.toggle('hidden', !show);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const borderClass = type === 'error' ? 'border-red-400 bg-red-950/95 text-red-100' : 'border-gold bg-midnight/95 text-goldLight';
+            
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border ${borderClass} shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-0`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Menu mobile
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Initialisation au chargement de la page
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initHanukkiah();
+            initIconSelector();
+            renderBlessings();
+            renderPhotos();
+        });
+    </script>
+</body>
+</html>
