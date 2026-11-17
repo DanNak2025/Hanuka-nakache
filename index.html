@@ -204,14 +204,33 @@
 
             <!-- Hanoukkia Interactive -->
             <div class="bg-gradient-to-b from-royal/40 to-midnight/80 rounded-3xl p-6 sm:p-10 card-gold-border max-w-3xl mx-auto">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-                    <div class="text-left">
-                        <h2 class="font-serif text-xl sm:text-2xl text-goldLight font-semibold">Allumez la Hanoukkia</h2>
-                        <p class="text-xs sm:text-sm text-cream/70">Cliquez sur une bougie ou choisissez le soir de Hanoucca</p>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2" id="night-buttons">
-                        <!-- Boutons générés par JS pour les 8 soirs -->
-                    </div>
+                <h2 class="font-serif text-xl sm:text-2xl text-goldLight font-semibold text-left">Allumez la Hanoukkia</h2>
+
+                <section class="my-6 rounded-2xl border border-gold/30 bg-midnight/70 p-4 sm:p-6 text-left" aria-labelledby="lighting-blessings-title">
+                    <h3 id="lighting-blessings-title" class="font-serif text-lg sm:text-xl font-semibold text-goldLight">Bénédictions avant l’allumage</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-cream/75">Rite séfarade. Récitez les deux premières bénédictions chaque soir. Le premier soir, ajoutez Chéhé’héyanou avant d’allumer.</p>
+                    <ol class="mt-5 divide-y divide-gold/20">
+                        <li class="pb-4">
+                            <h4 class="font-semibold text-sm text-goldLight">1. Léhadlik nèr Hanoucca</h4>
+                            <p lang="he" dir="rtl" class="mt-2 text-right text-xl sm:text-2xl !leading-relaxed">בָּרוּךְ אַתָּה אֲדֹנָי, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהַדְלִיק נֵר חֲנֻכָּה.</p>
+                            <p class="mt-2 text-sm leading-relaxed text-cream/85">Baroukh ata Adonaï, Élohénou mélekh ha’olam, achèr kidéchanou bémitsvotav vétsivanou léhadlik nèr ‘Hanouka.</p>
+                        </li>
+                        <li class="py-4">
+                            <h4 class="font-semibold text-sm text-goldLight">2. Ché’assa nissim</h4>
+                            <p lang="he" dir="rtl" class="mt-2 text-right text-xl sm:text-2xl !leading-relaxed">בָּרוּךְ אַתָּה אֲדֹנָי, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, שֶׁעָשָׂה נִסִּים לַאֲבוֹתֵינוּ בַּיָּמִים הָהֵם בַּזְּמַן הַזֶּה.</p>
+                            <p class="mt-2 text-sm leading-relaxed text-cream/85">Baroukh ata Adonaï, Élohénou mélekh ha’olam, ché’assa nissim la’avoténou bayamim hahèm bazémane hazé.</p>
+                        </li>
+                        <li class="pt-4">
+                            <h4 class="font-semibold text-sm text-goldLight">3. Chéhé’héyanou <span class="font-normal text-cream/75">· Premier soir</span></h4>
+                            <p lang="he" dir="rtl" class="mt-2 text-right text-xl sm:text-2xl !leading-relaxed">בָּרוּךְ אַתָּה אֲדֹנָי, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ לַזְּמַן הַזֶּה.</p>
+                            <p class="mt-2 text-sm leading-relaxed text-cream/85">Baroukh ata Adonaï, Élohénou mélekh ha’olam, chéhé’héyanou vékiyémanou véhiguiyanou lazémane hazé.</p>
+                        </li>
+                    </ol>
+                </section>
+
+                <p class="mb-3 text-xs sm:text-sm text-cream/70">Cliquez sur une bougie ou choisissez le soir de Hanoucca.</p>
+                <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2" id="night-buttons">
+                    <!-- Boutons générés par JS pour les 8 soirs -->
                 </div>
 
                 <!-- Représentation Visuelle de la Hanoukkia -->
