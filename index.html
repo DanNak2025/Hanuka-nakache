@@ -2,6 +2,7 @@
 <html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joyeux Hanoucca - Famille NAKACHE</title>
     
@@ -13,12 +14,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- SDK Officiel Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Configuration Tailwind personnalisée -->
+<!-- Configuration Tailwind personnalisée -->
     <script>
-        tailwind.config = {
+        if (window.tailwind) tailwind.config = {
             theme: {
                 extend: {
                     colors: {
@@ -118,12 +116,19 @@
             border-radius: 4px;
             border: 1px solid #D4AF37;
         }
+        [hidden], .hidden { display: none !important; }
+        section[id], header[id] { scroll-margin-top: 5rem; }
+        :focus-visible { outline: 2px solid #F3E5AB; outline-offset: 4px; }
+        .photo-dialog { max-height: 90dvh; overflow-y: auto; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
 <body class="star-bg min-h-screen flex flex-col selection:bg-gold selection:text-midnight">
 
     <!-- Notification Toast (Remplace alert()) -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+    <div id="toast-container" role="status" aria-live="polite" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
     <!-- Barre de Navigation -->
     <nav class="sticky top-0 z-40 bg-midnight/90 backdrop-blur-md border-b border-gold/20">
@@ -142,18 +147,11 @@
                     <a href="#hanoukkia" class="text-cream/80 hover:text-gold transition-colors">La Hanoukkia</a>
                     <a href="#benedictions" class="text-cream/80 hover:text-gold transition-colors">Bénédictions aux Grands-Parents</a>
                     <a href="#galerie" class="text-cream/80 hover:text-gold transition-colors">Photos de Famille</a>
-                    <button onclick="manualRefresh(true)" class="px-4 py-2 rounded-full border border-gold/50 text-goldLight hover:bg-gold hover:text-midnight transition-all flex items-center gap-2" title="Synchroniser maintenant">
-                        <span id="refresh-icon">🔄</span>
-                        <span>Actualiser</span>
-                    </button>
                 </div>
 
                 <!-- Bouton Menu Mobile -->
                 <div class="md:hidden flex items-center gap-2">
-                    <button onclick="manualRefresh(true)" class="p-2 text-xs rounded-full border border-gold/50 text-goldLight" title="Actualiser">
-                        🔄
-                    </button>
-                    <button id="mobile-menu-btn" class="p-2 rounded-lg text-goldLight hover:bg-royal/50 focus:outline-none" aria-label="Menu">
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg text-goldLight hover:bg-royal/50 focus:outline-none" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
@@ -167,12 +165,15 @@
             <a href="#hanoukkia" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">La Hanoukkia</a>
             <a href="#benedictions" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">Bénédictions aux Grands-Parents</a>
             <a href="#galerie" class="block py-2 px-3 rounded-lg text-cream hover:bg-royal/40">Photos de Famille</a>
-            <button onclick="toggleHelpModal(true)" class="w-full text-left py-2 px-3 rounded-lg text-goldLight hover:bg-royal/40">Aide & Guide GitHub</button>
+            <button onclick="toggleHelpModal(true)" class="w-full text-left py-2 px-3 rounded-lg text-goldLight hover:bg-royal/40">Comment partager mes souvenirs ?</button>
         </div>
     </nav>
 
     <!-- Section Héro & Hanoukkia Interactive -->
     <header id="hanoukkia" class="relative pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 overflow-hidden">
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="font-serif text-4xl sm:text-6xl font-bold text-goldLight gold-glow mb-4">Joyeux Hanoucca</h1>
+            <p class="font-serif text-lg sm:text-xl text-gold mb-5" lang="he" dir="rtl">חג חנוכה שמח</p>
             <p class="max-w-2xl mx-auto text-cream/85 text-base sm:text-lg font-light leading-relaxed mb-8">
                 Que la lumière des bougies de Hanoucca illumine notre foyer, réchauffe les cœurs de nos chers grands-parents et unisse toute la famille Nakache dans la joie, la santé et la paix.
             </p>
@@ -180,32 +181,25 @@
             <!-- Photo de famille mise en avant dès l'accueil -->
             <div class="max-w-3xl mx-auto mb-10">
                 <div class="relative rounded-3xl overflow-hidden card-gold-border bg-royal/40 p-2 sm:p-3 shadow-2xl group">
-                    <div class="relative rounded-2xl overflow-hidden cursor-pointer" onclick="openFeaturedLightbox()">
+                    <button type="button" class="block w-full relative rounded-2xl overflow-hidden" onclick="openLightbox(featuredPhoto)" aria-label="Agrandir la photo de famille">
                         <img id="hero-family-photo" src="photo-famille.jpg" alt="La grande famille NAKACHE réunie autour de la table"
-                             onerror="this.onerror=null; this.src='https://placehold.co/1200x800/1E3E62/F3E5AB?text=Famille+NAKACHE+%E2%80%A2+Deposez+photo-famille.jpg+sur+GitHub';"
                              class="w-full max-h-[480px] object-cover transition-transform duration-700 group-hover:scale-[1.02]">
-                        <div class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-midnight/20 to-transparent"></div>
-                        <div class="absolute bottom-3 left-4 right-4 sm:bottom-5 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-left">
-                            <div>
+                        <span class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-midnight/20 to-transparent"></span>
+                        <span class="absolute bottom-3 left-4 right-4 sm:bottom-5 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-left">
+                            <span>
                                 <span class="inline-block px-2.5 py-0.5 rounded-full bg-gold/90 text-midnight font-bold text-[11px] uppercase tracking-wider mb-1.5">
                                     ✨ Souvenir de Famille
                                 </span>
-                                <p class="font-serif text-base sm:text-xl text-goldLight font-semibold">
+                                <span class="font-serif text-base sm:text-xl text-goldLight font-semibold">
                                     Toute la famille NAKACHE réunie avec amour
-                                </p>
-                            </div>
+                                </span>
+                            </span>
                             <span class="self-start sm:self-auto px-3 py-1.5 rounded-full bg-midnight/80 border border-gold/40 text-goldLight text-xs backdrop-blur-sm">
                                 🔍 Agrandir la photo
                             </span>
-                        </div>
-                    </div>
+                        </span>
+                    </button>
                 </div>
-            </div>
-
-            <!-- Alerte si les tables Supabase n'existent pas encore -->
-            <div id="db-warning-banner" class="hidden max-w-3xl mx-auto mb-8 p-4 rounded-2xl bg-amber-950/90 border border-amber-400/50 text-amber-100 text-left text-xs sm:text-sm">
-                <p class="font-semibold text-amber-300 mb-1">⚠️ Configuration finale requise sur Supabase</p>
-                <p id="db-warning-message">Les tables n'ont pas encore été détectées dans votre projet Supabase. Assurez-vous d'avoir bien exécuté le script SQL dans le <strong>SQL Editor</strong> de Supabase.</p>
             </div>
 
             <!-- Hanoukkia Interactive -->
@@ -268,7 +262,7 @@
                     <form id="blessing-form" class="space-y-5">
                         <div>
                             <label for="author-name" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre prénom (et branche de la famille)</label>
-                            <input type="text" id="author-name" required placeholder="Ex : Sarah, Léa & David..."
+                            <input type="text" id="author-name" required maxlength="80" placeholder="Ex : Sarah, Léa & David..."
                                 class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all">
                         </div>
 
@@ -287,35 +281,33 @@
 
                         <div>
                             <label for="blessing-text" class="block text-sm font-medium text-goldLight/90 mb-1.5">Votre message pour nos Grands-Parents</label>
-                            <textarea id="blessing-text" rows="4" required placeholder="Chers Papi et Mamie, en ce Hanoucca nous vous souhaitons..."
+                            <textarea id="blessing-text" rows="4" required maxlength="2000" placeholder="Chers Papi et Mamie, en ce Hanoucca nous vous souhaitons..."
                                 class="w-full px-4 py-3 rounded-xl bg-midnight/80 border border-gold/30 text-cream placeholder-cream/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all resize-none"></textarea>
                         </div>
 
                         <button type="submit" id="blessing-submit-btn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold to-goldLight text-midnight font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-gold/20 flex items-center justify-center gap-2">
-                            <span>✨ Publier ma bénédiction</span>
+                            <span>✨ Enregistrer ma bénédiction</span>
                         </button>
                     </form>
 
-                    <!-- Indicateur de base de données partagée -->
-                    <div class="mt-6 pt-5 border-t border-gold/20 flex items-center justify-between gap-2 text-xs text-cream/70">
-                        <span class="flex items-center gap-1.5 text-emerald-300">
-                            <span>☁️</span> Enregistré dans le Cloud familial
-                        </span>
-                        <button onclick="manualRefresh(true)" class="px-3 py-1.5 rounded-lg bg-midnight/80 border border-gold/30 text-goldLight hover:bg-gold hover:text-midnight transition-colors">
-                            🔄 Rafraîchir
-                        </button>
+                    <p class="mt-5 text-xs text-cream/75">Les messages et les photos sont conservés dans ce navigateur.</p>
+                    <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                        <button type="button" id="export-family" class="px-3 py-2 rounded-lg border border-gold/40 text-goldLight">Exporter les souvenirs</button>
+                        <label class="px-3 py-2 rounded-lg border border-gold/40 text-goldLight cursor-pointer focus-within:ring-2 ring-gold">Importer un fichier
+                            <input type="file" id="import-family" accept=".json,application/json" class="sr-only">
+                        </label>
                     </div>
                 </div>
 
                 <!-- Mur des bénédictions -->
                 <div class="lg:col-span-7">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-goldLight font-medium" id="blessings-count">Chargement des bénédictions...</span>
+                        <span class="text-sm text-goldLight font-medium" id="blessings-count" aria-live="polite">Chargement des bénédictions...</span>
                         <span class="text-xs text-cream/60 italic">Avec tout notre amour ❤️</span>
                     </div>
 
                     <div id="blessings-wall" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Les cartes de bénédictions sont injectées ici depuis Supabase -->
+                        <!-- Les cartes de bénédictions sont injectées ici au chargement -->
                     </div>
                 </div>
             </div>
@@ -357,17 +349,15 @@
                 <p class="text-xs text-cream/60 mt-1">Que la lumière et la bénédiction demeurent toujours dans notre maison.</p>
             </div>
             <div class="flex flex-wrap justify-center gap-4 text-xs text-cream/70">
-                <button onclick="toggleHelpModal(true)" class="hover:text-gold underline">Comment héberger sur GitHub Pages ?</button>
-                <span>•</span>
-                <button onclick="manualRefresh(true)" class="hover:text-gold">Synchroniser maintenant</button>
+                <button onclick="toggleHelpModal(true)" class="hover:text-gold underline">Comment partager mes souvenirs ?</button>
             </div>
         </div>
     </footer>
 
     <!-- MODALE : Ajouter une photo -->
-    <div id="photo-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-midnight border border-gold/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-float" style="animation: none;">
-            <button onclick="togglePhotoModal(false)" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
+    <div id="photo-modal" role="dialog" aria-modal="true" aria-label="Ajouter une photo" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="photo-dialog bg-midnight border border-gold/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-float" style="animation: none;">
+            <button onclick="togglePhotoModal(false)" aria-label="Fermer le formulaire photo" type="button" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
             
             <h3 class="font-serif text-2xl text-goldLight font-bold mb-2">Ajouter un souvenir photo</h3>
             <p class="text-xs text-cream/70 mb-6">Choisissez une photo depuis votre appareil ou collez un lien d'image.</p>
@@ -385,38 +375,32 @@
 
                 <!-- Zone Upload Fichier -->
                 <div id="source-file-box">
-                    <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gold/40 rounded-2xl cursor-pointer bg-royal/20 hover:bg-royal/30 transition-all">
+                    <label class="flex flex-col items-center justify-center w-full h-28 focus-within:ring-2 ring-gold border-2 border-dashed border-gold/40 rounded-2xl cursor-pointer bg-royal/20 hover:bg-royal/30 transition-all">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
                             <span class="text-3xl mb-1">📸</span>
                             <p class="text-sm text-goldLight font-medium">Cliquez pour sélectionner une photo</p>
                             <p class="text-xs text-cream/50 mt-1">JPG, PNG ou WebP (compressée automatiquement)</p>
                         </div>
-                        <input id="photo-file-input" type="file" accept="image/*" class="hidden" onchange="handleImageFile(event)">
+                        <input id="photo-file-input" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" onchange="handleImageFile(event)">
                     </label>
                 </div>
 
                 <!-- Zone URL -->
                 <div id="source-url-box" class="hidden">
-                    <label class="block text-xs font-medium text-goldLight mb-1">Adresse web de la photo (https://...)</label>
-                    <input type="url" id="photo-url-input" placeholder="https://exemple.com/ma-photo.jpg" oninput="previewImageUrl(this.value)"
+                    <label for="photo-url-input" class="block text-xs font-medium text-goldLight mb-1">Adresse web de la photo (https://...)</label>
+                    <input type="url" id="photo-url-input" maxlength="2048" placeholder="https://exemple.com/ma-photo.jpg" oninput="previewImageUrl(this.value)"
                         class="w-full px-4 py-3 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
                 </div>
 
                 <!-- Aperçu -->
                 <div id="photo-preview-container" class="hidden">
                     <p class="text-xs text-goldLight mb-1">Aperçu :</p>
-                    <img id="photo-preview-img" src="" alt="Aperçu" class="w-full h-44 object-cover rounded-xl border border-gold/30">
+                    <img id="photo-preview-img" referrerpolicy="no-referrer" alt="Aperçu" class="w-full h-44 object-cover rounded-xl border border-gold/30">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-goldLight mb-1">Légende de la photo</label>
-                    <input type="text" id="photo-caption" required placeholder="Ex : Allumage du 4ème soir chez Papi et Mamie !"
-                        class="w-full px-4 py-2.5 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-goldLight mb-1">Légende / Souvenir (optionnel)</label>
-                    <input type="text" id="photo-caption" placeholder="Ex : Allumage du 4ème soir chez Papi et Mamie ! — Sarah"
+                    <label for="photo-caption" class="block text-xs font-medium text-goldLight mb-1">Légende / Souvenir (optionnel)</label>
+                    <input type="text" id="photo-caption" maxlength="200" placeholder="Ex : Allumage du 4ème soir chez Papi et Mamie ! — Sarah"
                         class="w-full px-4 py-2.5 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
                 </div>
 
@@ -428,12 +412,12 @@
     </div>
 
     <!-- MODALE : Lightbox (Vue agrandie des photos) -->
-    <div id="lightbox-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeLightbox(event)">
+    <div id="lightbox-modal" role="dialog" aria-modal="true" aria-label="Photo agrandie" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeLightbox(event)">
         <div class="max-w-4xl w-full flex flex-col items-center relative" onclick="event.stopPropagation()">
             <button onclick="toggleLightbox(false)" class="self-end mb-3 px-3 py-1 rounded-full bg-royal/80 text-goldLight hover:bg-gold hover:text-midnight text-sm font-medium transition-colors">
                 Fermer ✕
             </button>
-            <img id="lightbox-img" src="" alt="Photo agrandie" class="max-h-[75vh] w-auto rounded-2xl border border-gold/40 shadow-2xl object-contain">
+            <img id="lightbox-img" referrerpolicy="no-referrer" alt="Photo agrandie" class="max-h-[75vh] w-auto rounded-2xl border border-gold/40 shadow-2xl object-contain">
             <div class="mt-4 text-center max-w-2xl">
                 <p id="lightbox-caption" class="text-cream font-medium text-base sm:text-lg"></p>
                 <p id="lightbox-meta" class="text-goldLight/80 text-xs sm:text-sm mt-1"></p>
@@ -442,33 +426,15 @@
     </div>
 
     <!-- MODALE : Guide GitHub Pages & Fonctionnement du stockage -->
-    <div id="help-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="help-modal" role="dialog" aria-modal="true" aria-label="Partager les souvenirs" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-midnight border border-gold/40 rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
-            <button onclick="toggleHelpModal(false)" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
+            <button onclick="toggleHelpModal(false)" aria-label="Fermer l’aide" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
             
-            <div class="flex items-center gap-3 mb-4">
-                <span class="text-2xl">🚀</span>
-                <h3 class="font-serif text-xl sm:text-2xl text-goldLight font-bold">Déployer sur GitHub Pages & Partager</h3>
-            </div>
-
-            <div class="space-y-5 text-sm text-cream/85 leading-relaxed">
-                <div class="bg-royal/30 p-4 rounded-2xl border border-gold/20">
-                    <h4 class="font-semibold text-goldLight mb-1">1. Comment mettre ce site en ligne gratuitement ?</h4>
-                    <ol class="list-decimal list-inside space-y-1.5 text-xs sm:text-sm text-cream/80">
-                        <li>Connectez-vous sur <strong>GitHub.com</strong> et ouvrez votre dépôt (ex. <code class="text-goldLight">Hanukkah</code>).</li>
-                        <li>Téléversez ce fichier en le nommant exactement <code class="text-goldLight font-mono">index.html</code> <strong>ainsi que votre photo de famille renommée exactement <code class="text-goldLight font-mono">photo-famille.jpg</code></strong> au même endroit.</li>
-                        <li>Allez dans l'onglet <strong>Settings</strong> &rarr; <strong>Pages</strong>, sélectionnez la branche <strong>main</strong> puis cliquez sur <strong>Save</strong>.</li>
-                        <li>Partagez le lien généré sur le groupe WhatsApp de la famille !</li>
-                    </ol>
-                </div>
-
-                <div class="bg-royal/30 p-4 rounded-2xl border border-gold/20">
-                    <h4 class="font-semibold text-goldLight mb-1">2. Base de données familiale en temps réel</h4>
-                    <p class="text-xs sm:text-sm text-cream/80">
-                        Ce site est directement connecté à votre base de données <strong>Supabase</strong> : chaque bénédiction et chaque photo ajoutée depuis n'importe quel téléphone ou ordinateur est enregistrée en ligne et visible par toute la famille Nakache en direct !
-                    </p>
-                </div>
-            </div>
+            <h3 class="font-serif text-xl text-goldLight font-bold mb-4">Partager les souvenirs</h3>
+            <p class="text-sm text-cream/85 leading-relaxed">
+                Dans le livre d’or, choisissez « Exporter les souvenirs ». Envoyez le fichier à vos proches, par exemple via WhatsApp.
+                Ils pourront l’ouvrir sur ce site avec « Importer un fichier ». Une nouvelle importation ajoute les souvenirs manquants.
+            </p>
 
             <div class="mt-6 text-right">
                 <button onclick="toggleHelpModal(false)" class="px-6 py-2.5 rounded-xl bg-gold text-midnight font-semibold text-sm hover:bg-goldLight transition-all">
@@ -478,175 +444,82 @@
         </div>
     </div>
 
-    <!-- Script Principal -->
     <script>
-        // ==========================================
-        // 4. GALERIE PHOTOS & LIGHTBOX (SUPABASE + PHOTO PAR DÉFAUT)
-        // ==========================================
-        const FEATURED_FAMILY_PHOTO = {
-            id: 'featured-nakache',
-            legende: 'La grande famille NAKACHE réunie autour de la table ❤️',
-            image_data: 'photo-famille.jpg',
-            created_at: null,
-            isFeatured: true
-        };
+        const storageKey = 'nakache_hanukkah_memories_v2';
+        const candleKey = 'nakache_hanukkah_candles_v1';
+        const featuredPhoto = { id: 'featured-nakache', url: 'photo-famille.jpg', caption: 'Toute la famille Nakache réunie' };
+        const dateFormat = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        const byId = id => document.getElementById(id);
+        let candlesState = Array(9).fill(false);
+        let memories = { blessings: [], photos: [] };
+        let photoMode = 'file';
+        let preparedPhoto = '';
+        let photoRequest = 0;
+        let openDialog;
+        let previousFocus;
 
-        function getAllDisplayPhotos() {
-            return [FEATURED_FAMILY_PHOTO, ...photos];
+        function photoSource(value) {
+            if (typeof value !== 'string') return '';
+            if (/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/i.test(value) && value.length <= 1_200_000) {
+                return value;
+            }
+            try {
+                const url = new URL(value);
+                if (url.protocol === 'https:' && !url.username && !url.password && url.href.length <= 2048) return url.href;
+            } catch {}
+            return '';
         }
 
-        function renderPhotos() {
-            const gallery = document.getElementById('photo-gallery');
-            gallery.innerHTML = '';
+        function normalizeMemories(data) {
+            if (!Array.isArray(data?.blessings) || !Array.isArray(data?.photos)) throw new Error('Fichier invalide');
+            const limit = (value, size) => typeof value === 'string' ? value.trim().slice(0, size) : '';
+            const blessings = data.blessings.map(item => ({
+                id: limit(item?.id, 100), author: limit(item?.author, 80),
+                text: limit(item?.text, 2000), icon: limit(item?.icon, 16) || '🕎', date: limit(item?.date, 100)
+            })).filter(item => item.id && item.author && item.text);
+            const photos = data.photos.map(item => ({
+                id: limit(item?.id, 100), url: photoSource(item?.url), caption: limit(item?.caption, 200),
+                date: limit(item?.date, 100)
+            })).filter(item => item.id && item.id !== featuredPhoto.id && item.url);
+            if (blessings.length !== data.blessings.length || photos.length !== data.photos.length) throw new Error('Souvenir invalide');
+            return { blessings, photos };
+        }
 
-            const displayPhotos = getAllDisplayPhotos();
-
-            displayPhotos.forEach(photo => {
-                const card = document.createElement('div');
-                card.className = 'group relative bg-royal/30 rounded-2xl overflow-hidden card-gold-border flex flex-col';
-                const captionText = photo.legende || 'Souvenir de Hanoucca — Famille Nakache';
-                const photoIdArg = typeof photo.id === 'string' ? `'${photo.id}'` : photo.id;
-                const badgeHtml = photo.isFeatured
-                    ? `<span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-gold text-midnight font-bold text-[11px] shadow-md">⭐ Photo de famille</span>`
-                    : '';
-                const actionHtml = photo.isFeatured
-                    ? `<span class="text-goldLight/80 font-medium">Souvenir permanent</span>`
-                    : `<button onclick="deletePhoto(${photo.id})" class="text-cream/40 hover:text-red-400 transition-colors">Supprimer</button>`;
-
-                card.innerHTML = `
-                    <div class="relative h-64 overflow-hidden cursor-pointer bg-midnight" onclick="openLightbox(${photoIdArg})">
-                        <img src="${photo.image_data}" alt="${escapeHTML(captionText)}" 
-                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/1E3E62/F3E5AB?text=Famille+Nakache+%E2%80%A2+photo-famille.jpg'"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                        ${badgeHtml}
-                        <span class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-midnight/80 text-goldLight text-xs border border-gold/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                            🔍 Agrandir
-                        </span>
-                    </div>
-                    <div class="p-4 flex-1 flex flex-col justify-between">
-                        <p class="text-cream text-sm font-medium mb-2">${escapeHTML(captionText)}</p>
-                        <div class="flex items-center justify-between text-xs text-cream/60 pt-2 border-t border-gold/10">
-                            <span>${photo.isFeatured ? 'Famille NAKACHE' : escapeHTML(formatFrenchDate(photo.created_at))}</span>
-                            ${actionHtml}
-                        </div>
-                    </div>
-                `;
-                gallery.appendChild(card);
+        function readMemories() {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) return normalizeMemories(JSON.parse(saved));
+            return normalizeMemories({
+                blessings: JSON.parse(localStorage.getItem('nakache_hanukkah_blessings_v1') ?? '[]'),
+                photos: JSON.parse(localStorage.getItem('nakache_hanukkah_photos_v1') ?? '[]')
             });
         }
 
-        function openFeaturedLightbox() {
-            openLightbox('featured-nakache');
-        }
-        }
-
-        function setSyncStatus(connected, text) {
-            const badge = document.getElementById('sync-badge');
-            const label = document.getElementById('sync-status-text');
-            if (!badge || !label) return;
-            label.textContent = text;
-            if (connected) {
-                badge.className = "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs";
-            } else {
-                badge.className = "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-200 text-xs";
-            }
-        }
-
-        function showDbError(error) {
-            console.error("Erreur Supabase:", error);
-            const banner = document.getElementById('db-warning-banner');
-            const msg = document.getElementById('db-warning-message');
-            if (banner && msg) {
-                banner.classList.remove('hidden');
-                if (error && (error.code === '42P01' || (error.message && error.message.includes('does not exist')))) {
-                    msg.innerHTML = "Les tables <code>benedictions</code> et <code>photos</code> n'ont pas encore été créées. Ouvrez le <strong>SQL Editor</strong> dans Supabase et cliquez sur <strong>Run</strong> avec le script fourni.";
-                } else {
-                    msg.textContent = "Impossible de joindre la base de données pour le moment (" + (error?.message || "vérifiez votre connexion") + ").";
-                }
-            }
-            setSyncStatus(false, "En attente de connexion à la base");
-        }
-
-        function hideDbError() {
-            const banner = document.getElementById('db-warning-banner');
-            if (banner) banner.classList.add('hidden');
-            setSyncStatus(true, "Synchronisé en direct avec toute la famille");
-        }
-
-        // Chargement depuis Supabase
-        async function fetchAllFromSupabase() {
+        function updateMemories(change) {
             try {
-                const [blessingsRes, photosRes] = await Promise.all([
-                    supabaseClient.from('benedictions').select('*').order('created_at', { ascending: false }),
-                    supabaseClient.from('photos').select('*').order('created_at', { ascending: false })
-                ]);
-
-                if (blessingsRes.error) {
-                    showDbError(blessingsRes.error);
-                    return;
-                }
-                if (photosRes.error) {
-                    showDbError(photosRes.error);
-                    return;
-                }
-
-                hideDbError();
-                blessings = blessingsRes.data || [];
-                photos = photosRes.data || [];
-                renderBlessings();
-                renderPhotos();
-            } catch (err) {
-                showDbError(err);
+                const next = change(readMemories());
+                localStorage.setItem(storageKey, JSON.stringify(next));
+                memories = next;
+                renderMemories();
+                return true;
+            } catch {
+                showToast('Enregistrement impossible. Vérifiez que le navigateur autorise le stockage et dispose de place.', true);
+                return false;
             }
         }
 
-        async function manualRefresh(notify = false) {
-            await fetchAllFromSupabase();
-            if (notify) {
-                showToast("Données familiales synchronisées ! ✨");
-            }
-        }
-
-        // Écoute en temps réel (Supabase Realtime)
-        function initRealtimeSubscription() {
-            supabaseClient
-                .channel('nakache-hanukkah-live')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'benedictions' }, () => {
-                    fetchAllFromSupabase();
-                })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => {
-                    fetchAllFromSupabase();
-                })
-                .subscribe((status) => {
-                    if (status === 'SUBSCRIBED') {
-                        setSyncStatus(true, "Synchronisé en direct avec toute la famille");
-                    }
-                });
-        }
-
-        function loadCandlesState() {
-            try {
-                const savedCandles = localStorage.getItem(CANDLES_STORAGE_KEY);
-                if (savedCandles) {
-                    candlesState = JSON.parse(savedCandles);
-                }
-            } catch (e) {
-                console.error(e);
-            }
+        function renderMemories() {
+            renderBlessings();
+            renderPhotos();
         }
 
         function saveCandlesState() {
             try {
-                localStorage.setItem(CANDLES_STORAGE_KEY, JSON.stringify(candlesState));
-            } catch (e) {
-                console.error(e);
+                localStorage.setItem(candleKey, JSON.stringify(candlesState));
+            } catch {
+                // The candle controls still work when the browser blocks storage.
             }
         }
 
-        // ==========================================
-        // 2. HANOUKKIA INTERACTIVE
-        // ==========================================
         function initHanukkiah() {
             const nightButtonsContainer = document.getElementById('night-buttons');
             nightButtonsContainer.innerHTML = '';
@@ -672,7 +545,10 @@
                 const isShamash = (i === 4);
                 const isLit = candlesState[i];
 
-                const candleWrapper = document.createElement('div');
+                const candleWrapper = document.createElement('button');
+                candleWrapper.type = 'button';
+                candleWrapper.setAttribute('aria-label', isShamash ? 'Shamash' : `Bougie ${i < 4 ? i + 1 : i}`);
+                candleWrapper.setAttribute('aria-pressed', String(isLit));
                 candleWrapper.className = 'flex flex-col items-center cursor-pointer group';
                 candleWrapper.onclick = () => toggleSingleCandle(i);
                 candleWrapper.title = isShamash ? 'Shamash (Bougie serviteur)' : 'Cliquez pour allumer/éteindre';
@@ -704,6 +580,7 @@
             candlesState[index] = !candlesState[index];
             saveCandlesState();
             renderCandles();
+            document.getElementById('menorah-candles').children[index].focus({ preventScroll: true });
         }
 
         // Traditionnellement on allume de droite à gauche (indices 8 vers 5, puis 3 vers 0) + Shamash (4)
@@ -728,16 +605,16 @@
             renderCandles();
         }
 
-        // ==========================================
-        // 3. BÉNÉDICTIONS AUX GRANDS-PARENTS (SUPABASE)
-        // ==========================================
+
         function initIconSelector() {
             const buttons = document.querySelectorAll('.icon-btn');
             const hiddenInput = document.getElementById('selected-icon');
 
             buttons.forEach(btn => {
+                btn.setAttribute('aria-pressed', String(btn.dataset.icon === hiddenInput.value));
                 btn.addEventListener('click', () => {
                     buttons.forEach(b => {
+                        b.setAttribute('aria-pressed', String(b === btn));
                         b.classList.remove('bg-gold/20', 'border-2', 'border-gold');
                         b.classList.add('bg-midnight/70', 'border', 'border-gold/20');
                     });
@@ -748,336 +625,310 @@
             });
         }
 
+
+
         function renderBlessings() {
-            const wall = document.getElementById('blessings-wall');
-            const countLabel = document.getElementById('blessings-count');
-            wall.innerHTML = '';
-
-            if (blessings.length === 0) {
-                countLabel.textContent = "Aucune bénédiction publiée pour l'instant";
-                wall.innerHTML = `
-                    <div class="col-span-full bg-royal/30 rounded-2xl p-8 card-gold-border text-center">
-                        <span class="text-4xl block mb-3">🕎</span>
-                        <h4 class="font-serif text-lg text-goldLight font-semibold mb-1">Soyez le premier à écrire à Papi et Mamie !</h4>
-                        <p class="text-sm text-cream/75">Utilisez le formulaire à gauche pour publier votre bénédiction de Hanoucca. Elle apparaîtra instantanément pour toute la famille.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            countLabel.textContent = `${blessings.length} bénédiction${blessings.length > 1 ? 's' : ''} pour nos grands-parents`;
-
-            blessings.forEach(item => {
+            const wall = byId('blessings-wall');
+            wall.replaceChildren();
+            const count = memories.blessings.length;
+            byId('blessings-count').textContent = count
+                ? `${count} ${count === 1 ? 'bénédiction' : 'bénédictions'} pour nos grands-parents`
+                : 'Le livre d’or attend son premier message.';
+            for (const item of memories.blessings) {
                 const card = document.createElement('article');
-                card.className = 'bg-gradient-to-br from-royal/50 to-midnight/90 rounded-2xl p-5 sm:p-6 card-gold-border flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 relative group';
-
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-start justify-between gap-3 mb-3">
-                            <span class="text-3xl bg-midnight/70 p-2 rounded-xl border border-gold/20">${escapeHTML(item.icone || '🕎')}</span>
-                            <button onclick="deleteBlessing(${item.id})" class="opacity-0 group-hover:opacity-100 focus:opacity-100 text-xs text-cream/40 hover:text-red-400 transition-opacity p-1" title="Supprimer ce message">
-                                ✕
-                            </button>
-                        </div>
-                        <p class="text-cream/95 text-sm sm:text-base leading-relaxed italic mb-4">
-                            « ${escapeHTML(item.message)} »
-                        </p>
-                    </div>
-                    <div class="pt-3 border-t border-gold/15 flex items-center justify-between text-xs">
-                        <span class="font-semibold text-goldLight">${escapeHTML(item.auteur)}</span>
-                        <span class="text-cream/50">${escapeHTML(formatFrenchDate(item.created_at))}</span>
-                    </div>
-                `;
-                wall.appendChild(card);
-            });
+                card.className = 'min-w-0 bg-royal/40 rounded-2xl p-5 card-gold-border';
+                card.innerHTML = `<div class="flex justify-between gap-3 mb-3">
+                    <span class="text-3xl"></span>
+                    <button type="button" class="text-cream/70 hover:text-red-300 text-xs">Supprimer</button>
+                </div><p class="text-sm sm:text-base italic mb-4 whitespace-pre-wrap break-words"></p>
+                <div class="flex justify-between gap-3 border-t border-gold/20 pt-3 text-xs">
+                    <strong class="text-goldLight break-words"></strong><time class="text-cream/70"></time>
+                </div>`;
+                card.querySelector('span').textContent = item.icon;
+                card.querySelector('p').textContent = `« ${item.text} »`;
+                card.querySelector('strong').textContent = item.author;
+                card.querySelector('time').textContent = item.date;
+                card.querySelector('button').onclick = () => removeMemory('blessings', item.id);
+                wall.append(card);
+            }
         }
 
-        document.getElementById('blessing-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const authorInput = document.getElementById('author-name');
-            const textInput = document.getElementById('blessing-text');
-            const iconInput = document.getElementById('selected-icon');
-            const submitBtn = document.getElementById('blessing-submit-btn');
+        function renderPhotos() {
+            const gallery = byId('photo-gallery');
+            gallery.replaceChildren();
+            for (const photo of [featuredPhoto, ...memories.photos]) {
+                const card = document.createElement('figure');
+                card.className = 'min-w-0 bg-royal/30 rounded-2xl overflow-hidden card-gold-border';
+                card.innerHTML = `<button type="button" class="block relative w-full h-56 bg-midnight">
+                    <img loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover">
+                    <span class="absolute bottom-3 right-3 bg-midnight/90 rounded-full px-3 py-1 text-goldLight text-xs">Agrandir</span>
+                </button><figcaption class="p-4 flex justify-between gap-3 text-sm"><span class="break-words min-w-0"></span></figcaption>`;
+                const caption = photo.caption || 'Souvenir de Hanoucca';
+                const image = card.querySelector('img');
+                image.alt = caption;
+                image.src = photo.url;
+                image.onerror = () => {
+                    image.alt = 'Photo indisponible';
+                    card.querySelector('button').disabled = true;
+                };
+                const enlarge = card.querySelector('button');
+                enlarge.setAttribute('aria-label', `Agrandir — ${caption}`);
+                enlarge.onclick = () => openLightbox(photo);
+                const captionBox = card.querySelector('figcaption');
+                captionBox.firstElementChild.textContent = caption;
+                if (photo !== featuredPhoto) {
+                    const remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'text-xs text-cream/70 hover:text-red-300';
+                    remove.textContent = 'Supprimer';
+                    remove.onclick = () => removeMemory('photos', photo.id);
+                    captionBox.append(remove);
+                }
+                gallery.append(card);
+            }
+        }
 
-            const auteur = authorInput.value.trim();
-            const message = textInput.value.trim();
-            const icone = iconInput.value || '🕎';
+        function removeMemory(collection, id) {
+            if (!confirm('Supprimer ce souvenir de ce navigateur ?')) return;
+            if (updateMemories(current => ({ ...current, [collection]: current[collection].filter(item => item.id !== id) }))) {
+                showToast('Souvenir supprimé.');
+            }
+        }
 
-            if (!auteur || !message) return;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>⏳ Publication en cours...</span>';
-
-            try {
-                const { error } = await supabaseClient
-                    .from('benedictions')
-                    .insert([{ auteur, icone, message }]);
-
-                if (error) throw error;
-
-                authorInput.value = '';
-                textInput.value = '';
-                await fetchAllFromSupabase();
-                showToast("Votre bénédiction pour Papi et Mamie a été publiée ! ✨");
-            } catch (err) {
-                showDbError(err);
-                showToast("Erreur lors de l'envoi : " + (err.message || "vérifiez Supabase"), "error");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>✨ Publier ma bénédiction</span>';
+        byId('blessing-form').addEventListener('submit', event => {
+            event.preventDefault();
+            const author = byId('author-name').value.trim();
+            const text = byId('blessing-text').value.trim();
+            if (!author || !text) {
+                showToast('Saisissez votre prénom et votre message.', true);
+                return;
+            }
+            const item = { id: crypto.randomUUID(), author, text, icon: byId('selected-icon').value, date: dateFormat.format(new Date()) };
+            if (updateMemories(current => ({ ...current, blessings: [item, ...current.blessings] }))) {
+                byId('blessing-text').value = '';
+                showToast('Votre message a été enregistré.');
             }
         });
 
-        async function deleteBlessing(id) {
-            try {
-                const { error } = await supabaseClient
-                    .from('benedictions')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) throw error;
-                await fetchAllFromSupabase();
-                showToast("Message supprimé.");
-            } catch (err) {
-                showToast("Impossible de supprimer le message.", "error");
-            }
-        }
-
-        // ==========================================
-        // 4. GALERIE PHOTOS & LIGHTBOX (SUPABASE)
-        // ==========================================
-        function renderPhotos() {
-            const gallery = document.getElementById('photo-gallery');
-            gallery.innerHTML = '';
-
-            if (photos.length === 0) {
-                gallery.innerHTML = `
-                    <div class="col-span-full bg-royal/25 rounded-3xl p-10 card-gold-border text-center">
-                        <span class="text-4xl block mb-3">📸</span>
-                        <h3 class="font-serif text-xl text-goldLight font-semibold mb-2">L'album photo de la famille Nakache est prêt</h3>
-                        <p class="text-sm text-cream/75 max-w-md mx-auto mb-5">Partagez la première photo de l'allumage des bougies, des beignets ou d'un moment en famille !</p>
-                        <button onclick="togglePhotoModal(true)" class="px-5 py-2.5 rounded-xl bg-gold text-midnight font-bold text-sm hover:bg-goldLight transition-all">
-                            + Ajouter la première photo
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            photos.forEach(photo => {
-                const card = document.createElement('div');
-                card.className = 'group relative bg-royal/30 rounded-2xl overflow-hidden card-gold-border flex flex-col';
-                const captionText = photo.legende || 'Souvenir de Hanoucca — Famille Nakache';
-
-                card.innerHTML = `
-                    <div class="relative h-64 overflow-hidden cursor-pointer bg-midnight" onclick="openLightbox(${photo.id})">
-                        <img src="${photo.image_data}" alt="${escapeHTML(captionText)}" 
-                             onerror="this.src='https://placehold.co/800x600/1E3E62/F3E5AB?text=Famille+Nakache+Hanoucca'"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-midnight/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                        <span class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-midnight/80 text-goldLight text-xs border border-gold/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                            🔍 Agrandir
-                        </span>
-                    </div>
-                    <div class="p-4 flex-1 flex flex-col justify-between">
-                        <p class="text-cream text-sm font-medium mb-2">${escapeHTML(captionText)}</p>
-                        <div class="flex items-center justify-between text-xs text-cream/60 pt-2 border-t border-gold/10">
-                            <span>${escapeHTML(formatFrenchDate(photo.created_at))}</span>
-                            <button onclick="deletePhoto(${photo.id})" class="text-cream/40 hover:text-red-400 transition-colors">Supprimer</button>
-                        </div>
-                    </div>
-                `;
-                gallery.appendChild(card);
-            });
-        }
-
         function switchPhotoSource(mode) {
-            currentPhotoSource = mode;
-            const tabFile = document.getElementById('tab-file');
-            const tabUrl = document.getElementById('tab-url');
-            const boxFile = document.getElementById('source-file-box');
-            const boxUrl = document.getElementById('source-url-box');
-
-            if (mode === 'file') {
-                tabFile.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all';
-                tabUrl.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all';
-                boxFile.classList.remove('hidden');
-                boxUrl.classList.add('hidden');
-            } else {
-                tabUrl.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all';
-                tabFile.className = 'flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all';
-                boxUrl.classList.remove('hidden');
-                boxFile.classList.add('hidden');
+            photoMode = mode;
+            for (const source of ['file', 'url']) {
+                const selected = mode === source;
+                byId(`source-${source}-box`).hidden = !selected;
+                const tab = byId(`tab-${source}`);
+                tab.setAttribute('aria-pressed', String(selected));
+                tab.classList.toggle('bg-gold', selected);
+                tab.classList.toggle('text-midnight', selected);
+                tab.classList.toggle('text-cream/80', !selected);
             }
-        }
-
-        // Compression d'image côté client (max 1000px, qualité JPEG 0.75) pour un envoi rapide dans Supabase
-        function handleImageFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1000;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    currentUploadedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
-                    showPhotoPreview(currentUploadedDataUrl);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function previewImageUrl(url) {
-            if (url && url.startsWith('http')) {
-                showPhotoPreview(url);
-            }
+            byId('source-url-box').classList.remove('hidden');
+            byId('photo-url-input').disabled = mode !== 'url';
+            if (mode === 'file') showPhotoPreview(preparedPhoto);
+            else previewImageUrl(byId('photo-url-input').value);
         }
 
         function showPhotoPreview(src) {
-            const container = document.getElementById('photo-preview-container');
-            const img = document.getElementById('photo-preview-img');
-            img.src = src;
-            container.classList.remove('hidden');
+            const image = byId('photo-preview-img');
+            if (src) image.src = src;
+            else image.removeAttribute('src');
+            byId('photo-preview-container').classList.toggle('hidden', !src);
         }
 
-        document.getElementById('photo-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const legende = document.getElementById('photo-caption').value.trim();
-            const urlInput = document.getElementById('photo-url-input').value.trim();
-            const submitBtn = document.getElementById('photo-submit-btn');
+        function previewImageUrl(url) {
+            showPhotoPreview(photoSource(url.trim()));
+        }
 
-            const image_data = currentPhotoSource === 'file' ? currentUploadedDataUrl : urlInput;
-
-            if (!image_data) {
-                showToast("Veuillez sélectionner une photo ou indiquer un lien valide.", "error");
+        async function handleImageFile(event) {
+            const request = ++photoRequest;
+            preparedPhoto = '';
+            showPhotoPreview('');
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 20 * 1024 * 1024) {
+                showToast('Choisissez une photo JPG, PNG ou WebP de 20 Mo maximum.', true);
                 return;
             }
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>⏳ Envoi de la photo...</span>';
-
+            const source = URL.createObjectURL(file);
+            const image = new Image();
             try {
-                const { error } = await supabaseClient
-                    .from('photos')
-                    .insert([{ legende, image_data }]);
-
-                if (error) throw error;
-
-                document.getElementById('photo-form').reset();
-                document.getElementById('photo-preview-container').classList.add('hidden');
-                currentUploadedDataUrl = '';
-                togglePhotoModal(false);
-                await fetchAllFromSupabase();
-                showToast("Photo ajoutée à l'album de la famille Nakache ! 📸");
-            } catch (err) {
-                showDbError(err);
-                showToast("Erreur lors de l'envoi de la photo : " + (err.message || "vérifiez Supabase"), "error");
+                image.src = source;
+                await image.decode();
+                const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#fff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                if (request !== photoRequest) return;
+                preparedPhoto = photoSource(canvas.toDataURL('image/jpeg', 0.76));
+                if (!preparedPhoto) throw new Error('Photo trop volumineuse');
+                if (photoMode === 'file') showPhotoPreview(preparedPhoto);
+            } catch {
+                if (request === photoRequest) showToast('Cette photo ne peut pas être lue. Essayez un autre fichier.', true);
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>📸 Ajouter à l\'album Nakache</span>';
+                URL.revokeObjectURL(source);
+            }
+        }
+
+        byId('photo-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            const submit = byId('photo-submit-btn');
+            const url = photoMode === 'file' ? preparedPhoto : photoSource(byId('photo-url-input').value.trim());
+            if (!url) {
+                showToast('Sélectionnez une photo ou entrez un lien HTTPS valide.', true);
+                return;
+            }
+            const dialog = openDialog;
+            const item = { id: crypto.randomUUID(), url, caption: byId('photo-caption').value.trim(), date: dateFormat.format(new Date()) };
+            submit.disabled = true;
+            try {
+                if (photoMode === 'url') {
+                    const image = new Image();
+                    image.referrerPolicy = 'no-referrer';
+                    image.src = url;
+                    await image.decode();
+                }
+                if (dialog !== openDialog) return;
+                if (updateMemories(current => ({ ...current, photos: [item, ...current.photos] }))) {
+                    event.target.reset();
+                    preparedPhoto = '';
+                    photoRequest += 1;
+                    switchPhotoSource('file');
+                    togglePhotoModal(false);
+                    showToast('La photo a été ajoutée à l’album.');
+                }
+            } catch {
+                showToast('Ce lien ne permet pas d’afficher une image. Vous pouvez ajouter le fichier directement.', true);
+            } finally {
+                submit.disabled = false;
             }
         });
 
-        async function deletePhoto(id) {
-            try {
-                const { error } = await supabaseClient
-                    .from('photos')
-                    .delete()
-                    .eq('id', id);
+        byId('export-family').addEventListener('click', () => {
+            const file = new Blob([JSON.stringify(memories)], { type: 'application/json' });
+            const url = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'souvenirs-hanoucca-nakache.json';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        });
 
-                if (error) throw error;
-                await fetchAllFromSupabase();
-                showToast("Photo supprimée de l'album.");
-            } catch (err) {
-                showToast("Impossible de supprimer la photo.", "error");
-            }
+        function mergeMemories(existing, incoming) {
+            const merged = new Map(existing.map(item => [item.id, item]));
+            for (const item of incoming) if (!merged.has(item.id)) merged.set(item.id, item);
+            return [...merged.values()];
         }
 
-        function openLightbox(id) {
-            const photo = getAllDisplayPhotos().find(p => p.id === id);
-            if (!photo) return;
+        byId('import-family').addEventListener('change', async event => {
+            const input = event.target;
+            const file = input.files[0];
+            input.value = '';
+            if (!file) return;
+            try {
+                if (file.size > 8 * 1024 * 1024) throw new Error('Fichier trop volumineux');
+                const incoming = normalizeMemories(JSON.parse(await file.text()));
+                if (updateMemories(current => ({
+                    blessings: mergeMemories(current.blessings, incoming.blessings),
+                    photos: mergeMemories(current.photos, incoming.photos)
+                }))) showToast('Souvenirs importés.');
+            } catch {
+                showToast('Choisissez un fichier JSON exporté depuis ce site.', true);
+            }
+        });
 
-            document.getElementById('lightbox-img').src = photo.image_data;
-            document.getElementById('lightbox-caption').textContent = photo.legende || 'Souvenir de Hanoucca — Famille Nakache';
-            document.getElementById('lightbox-meta').textContent = photo.isFeatured ? 'Photo officielle de la famille NAKACHE' : formatFrenchDate(photo.created_at);
+        function openLightbox(photo) {
+            byId('lightbox-img').src = photo.url;
+            byId('lightbox-caption').textContent = photo.caption || 'Souvenir de Hanoucca';
+            byId('lightbox-meta').textContent = photo.date || '';
             toggleLightbox(true);
         }
 
-        function closeLightbox(e) {
-            if (e.target.id === 'lightbox-modal') {
-                toggleLightbox(false);
+        function closeLightbox(event) {
+            if (event.target === byId('lightbox-modal')) toggleLightbox(false);
+        }
+
+        function toggleDialog(id, show) {
+            const dialog = byId(id);
+            dialog.classList.toggle('hidden', !show);
+            if (show) {
+                previousFocus = document.activeElement;
+                openDialog = dialog;
+                document.body.style.overflow = 'hidden';
+                dialog.querySelector('button').focus();
+            } else {
+                openDialog = null;
+                document.body.style.overflow = '';
+                previousFocus?.focus({ preventScroll: true });
             }
         }
 
-        // ==========================================
-        // 5. UTILITAIRES UI (MODALES, TOASTS, MENU)
-        // ==========================================
-        function togglePhotoModal(show) {
-            const modal = document.getElementById('photo-modal');
-            modal.classList.toggle('hidden', !show);
-        }
+        function togglePhotoModal(show) { toggleDialog('photo-modal', show); }
+        function toggleLightbox(show) { toggleDialog('lightbox-modal', show); }
+        function toggleHelpModal(show) { toggleDialog('help-modal', show); }
 
-        function toggleLightbox(show) {
-            const modal = document.getElementById('lightbox-modal');
-            modal.classList.toggle('hidden', !show);
-        }
-
-        function toggleHelpModal(show) {
-            const modal = document.getElementById('help-modal');
-            modal.classList.toggle('hidden', !show);
-        }
-
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            const borderClass = type === 'error' ? 'border-red-400 bg-red-950/95 text-red-100' : 'border-gold bg-midnight/95 text-goldLight';
-            
-            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border ${borderClass} shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-0`;
-            toast.textContent = message;
-
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(10px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // Menu mobile
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+        document.addEventListener('keydown', event => {
+            if (!openDialog) return;
+            if (event.key === 'Escape') {
+                toggleDialog(openDialog.id, false);
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            const controls = [...openDialog.querySelectorAll('button, input')].filter(element => !element.disabled && element.getClientRects().length);
+            const first = controls[0];
+            const last = controls.at(-1);
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         });
 
-        // Initialisation au chargement de la page
-        window.addEventListener('DOMContentLoaded', async () => {
-            loadCandlesState();
-            initHanukkiah();
-            initIconSelector();
-            await fetchAllFromSupabase();
-            initRealtimeSubscription();
+        function showToast(message, error = false) {
+            const toast = document.createElement('div');
+            toast.className = 'rounded-xl border px-4 py-3 text-sm shadow-xl ' +
+                (error ? 'bg-red-950 text-red-100 border-red-400' : 'bg-midnight text-goldLight border-gold');
+            toast.textContent = message;
+            byId('toast-container').append(toast);
+            setTimeout(() => toast.remove(), 4500);
+        }
+
+        const menuButton = byId('mobile-menu-btn');
+        const menu = byId('mobile-menu');
+        function setMenu(open) {
+            menu.classList.toggle('hidden', !open);
+            menuButton.setAttribute('aria-expanded', String(open));
+        }
+        menuButton.addEventListener('click', () => setMenu(menu.classList.contains('hidden')));
+        menu.addEventListener('click', event => {
+            if (event.target.closest('a, button')) setMenu(false);
+        });
+
+        try {
+            const saved = JSON.parse(localStorage.getItem(candleKey));
+            if (Array.isArray(saved) && saved.length === 9 && saved.every(value => typeof value === 'boolean')) candlesState = saved;
+        } catch {}
+
+        function refreshMemories() {
+            try {
+                memories = readMemories();
+                renderMemories();
+            } catch {
+                showToast('Les souvenirs enregistrés dans ce navigateur ne peuvent pas être lus.', true);
+            }
+        }
+
+        initHanukkiah();
+        initIconSelector();
+        switchPhotoSource('file');
+        renderMemories();
+        refreshMemories();
+        window.addEventListener('storage', event => {
+            if (event.key === storageKey || event.key === null) refreshMemories();
         });
     </script>
 </body>
