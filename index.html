@@ -349,11 +349,13 @@
                     </p>
                 </div>
 
-                <button type="button" id="add-family-photo" hidden onclick="togglePhotoModal(true)" class="self-start md:self-auto px-6 py-3.5 rounded-xl bg-gold text-midnight font-bold text-sm sm:text-base hover:bg-goldLight transition-all shadow-lg shadow-gold/20 flex items-center gap-2">
+                <button type="button" id="add-family-photo" hidden onclick="togglePhotoModal(true)" class="self-start md:self-auto min-h-[56px] px-6 py-4 rounded-xl bg-gold text-midnight font-bold text-lg hover:bg-goldLight transition-all shadow-lg shadow-gold/20 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>Ajouter une photo</span>
                 </button>
             </div>
+
+            <p id="photo-published" role="status" tabindex="-1" hidden class="mb-6 rounded-xl border border-emerald-400/60 bg-emerald-950 px-4 py-3 text-lg font-semibold text-emerald-100"></p>
 
             <!-- Grille de photos -->
             <div id="photo-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -376,58 +378,35 @@
     </footer>
 
     <!-- MODALE : Ajouter une photo -->
-    <div id="photo-modal" role="dialog" aria-modal="true" aria-label="Ajouter une photo" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="photo-dialog bg-midnight border border-gold/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-float" style="animation: none;">
-            <button onclick="togglePhotoModal(false)" aria-label="Fermer le formulaire photo" type="button" class="absolute top-5 right-5 text-cream/60 hover:text-gold text-2xl leading-none">&times;</button>
-            
-            <h3 class="font-serif text-2xl text-goldLight font-bold mb-2">Ajouter un souvenir photo</h3>
-            <p class="text-xs text-cream/70 mb-6">Choisissez une photo depuis votre appareil ou collez un lien d'image.</p>
-
-            <form id="photo-form" class="space-y-4">
-                <!-- Onglets Fichier vs URL -->
-                <div class="flex rounded-xl bg-royal/40 p-1 border border-gold/20">
-                    <button type="button" id="tab-file" onclick="switchPhotoSource('file')" class="flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg bg-gold text-midnight transition-all">
-                        📱 Depuis mon appareil
-                    </button>
-                    <button type="button" id="tab-url" onclick="switchPhotoSource('url')" class="flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg text-cream/80 hover:text-white transition-all">
-                        🔗 Lien d'image (URL)
-                    </button>
+    <div id="photo-modal" role="dialog" aria-modal="true" aria-labelledby="photo-dialog-title" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="photo-dialog bg-midnight border border-gold/50 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl">
+            <h3 id="photo-dialog-title" class="font-serif text-2xl text-goldLight font-bold">Ajouter une photo</h3>
+            <form id="photo-form" class="mt-4 space-y-4">
+                <div id="photo-choices" class="grid gap-3">
+                    <button type="button" id="choose-photo" class="w-full min-h-[56px] rounded-xl bg-gold px-4 py-3 text-lg font-bold text-midnight hover:bg-goldLight">Choisir une photo</button>
+                    <button type="button" id="take-photo" hidden class="w-full min-h-[56px] rounded-xl border border-gold/60 px-4 py-3 text-lg font-semibold text-goldLight hover:bg-royal">Prendre une photo</button>
+                    <input id="photo-file-input" type="file" accept="image/*,.heic,.heif" hidden>
+                    <input id="camera-file-input" type="file" accept="image/*" capture="environment" hidden>
+                    <details id="photo-link-options">
+                        <summary class="cursor-pointer py-3 text-base text-goldLight underline">Utiliser un lien Internet</summary>
+                        <label for="photo-url-input" class="block mb-2 text-base text-cream">Lien vers la photo</label>
+                        <input type="url" inputmode="url" id="photo-url-input" maxlength="2048" placeholder="https://…" class="w-full min-h-[52px] rounded-xl bg-royal/40 border border-gold/50 px-3 py-2 text-lg text-cream">
+                    </details>
                 </div>
 
-                <!-- Zone Upload Fichier -->
-                <div id="source-file-box">
-                    <label class="flex flex-col items-center justify-center w-full h-28 focus-within:ring-2 ring-gold border-2 border-dashed border-gold/40 rounded-2xl cursor-pointer bg-royal/20 hover:bg-royal/30 transition-all">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                            <span class="text-3xl mb-1">📸</span>
-                            <p class="text-sm text-goldLight font-medium">Cliquez pour sélectionner une photo</p>
-                            <p class="text-xs text-cream/50 mt-1">JPG, PNG ou WebP (compressée automatiquement)</p>
-                        </div>
-                        <input id="photo-file-input" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" onchange="handleImageFile(event)">
-                    </label>
+                <div id="photo-preview-container" hidden>
+                    <img id="photo-preview-img" referrerpolicy="no-referrer" alt="Photo sélectionnée" class="h-40 sm:h-48 w-full rounded-xl border border-gold/30 object-contain">
                 </div>
 
-                <!-- Zone URL -->
-                <div id="source-url-box" class="hidden">
-                    <label for="photo-url-input" class="block text-xs font-medium text-goldLight mb-1">Adresse web de la photo (https://...)</label>
-                    <input type="url" id="photo-url-input" maxlength="2048" placeholder="https://exemple.com/ma-photo.jpg" oninput="previewImageUrl(this.value)"
-                        class="w-full px-4 py-3 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
+                <p id="photo-feedback" role="status" aria-live="polite" aria-atomic="true" class="text-base leading-relaxed text-cream">Choisis la photo que tu veux partager.</p>
+
+                <div id="photo-caption-group" hidden>
+                    <label for="photo-caption" class="block mb-2 text-base text-cream">Un petit mot <span class="text-cream/75">(facultatif)</span></label>
+                    <input type="text" id="photo-caption" maxlength="200" class="w-full min-h-[52px] rounded-xl bg-royal/40 border border-gold/50 px-3 py-2 text-lg text-cream">
                 </div>
 
-                <!-- Aperçu -->
-                <div id="photo-preview-container" class="hidden">
-                    <p class="text-xs text-goldLight mb-1">Aperçu :</p>
-                    <img id="photo-preview-img" referrerpolicy="no-referrer" alt="Aperçu" class="w-full h-44 object-cover rounded-xl border border-gold/30">
-                </div>
-
-                <div>
-                    <label for="photo-caption" class="block text-xs font-medium text-goldLight mb-1">Légende / Souvenir (optionnel)</label>
-                    <input type="text" id="photo-caption" maxlength="200" placeholder="Ex : Allumage du 4ème soir chez Papi et Mamie ! — Sarah"
-                        class="w-full px-4 py-2.5 rounded-xl bg-royal/30 border border-gold/30 text-cream text-sm focus:outline-none focus:border-gold">
-                </div>
-
-                <button type="submit" id="photo-submit-btn" class="w-full py-3 rounded-xl bg-gold text-midnight font-bold text-sm hover:bg-goldLight transition-all mt-2 flex items-center justify-center gap-2">
-                    <span>📸 Ajouter à l'album Nakache</span>
-                </button>
+                <button type="submit" id="photo-submit-btn" hidden class="w-full min-h-[56px] rounded-xl bg-gold px-4 py-3 text-lg font-bold text-midnight hover:bg-goldLight disabled:opacity-60">Partager cette photo</button>
+                <button type="button" id="photo-cancel" class="w-full min-h-[48px] rounded-xl border border-gold/40 px-4 py-2 text-base font-semibold text-goldLight disabled:opacity-60">Annuler</button>
             </form>
         </div>
     </div>
@@ -472,9 +451,9 @@
         const byId = id => document.getElementById(id);
         let candlesState = Array(9).fill(false);
         let memories = { blessings: [], photos: [] };
-        let photoMode = 'file';
         let preparedPhoto = '';
         let photoRequest = 0;
+        let photoSending = false;
         let openDialog;
         let previousFocus;
         const familyApi = 'https://qcpmysfjpmjucswxbppy.supabase.co/rest/v1/rpc/hanoucca_memories';
@@ -877,49 +856,66 @@
             }
         });
 
-        function switchPhotoSource(mode) {
-            photoMode = mode;
-            for (const source of ['file', 'url']) {
-                const selected = mode === source;
-                byId(`source-${source}-box`).hidden = !selected;
-                const tab = byId(`tab-${source}`);
-                tab.setAttribute('aria-pressed', String(selected));
-                tab.classList.toggle('bg-gold', selected);
-                tab.classList.toggle('text-midnight', selected);
-                tab.classList.toggle('text-cream/80', !selected);
-            }
-            byId('source-url-box').classList.remove('hidden');
-            byId('photo-url-input').disabled = mode !== 'url';
-            if (mode === 'file') showPhotoPreview(preparedPhoto);
-            else previewImageUrl(byId('photo-url-input').value);
+        function photoFeedback(message, error = false) {
+            const feedback = byId('photo-feedback');
+            feedback.textContent = message;
+            feedback.classList.toggle('text-red-200', error);
+            feedback.classList.toggle('text-cream', !error);
         }
 
-        function showPhotoPreview(src) {
+        function setPhotoPreview(source) {
+            preparedPhoto = source;
             const image = byId('photo-preview-img');
-            if (src) image.src = src;
+            if (source) image.src = source;
             else image.removeAttribute('src');
-            byId('photo-preview-container').classList.toggle('hidden', !src);
+            byId('photo-preview-container').hidden = !source;
+            byId('photo-caption-group').hidden = !source;
+            byId('photo-submit-btn').hidden = !source;
+            byId('choose-photo').textContent = source ? 'Choisir une autre photo' : 'Choisir une photo';
         }
 
-        function previewImageUrl(url) {
-            showPhotoPreview(photoSource(url.trim()));
+        function resetPhotoForm() {
+            photoRequest += 1;
+            byId('photo-form').reset();
+            byId('photo-link-options').open = false;
+            setPhotoPreview('');
+            photoFeedback('Choisis la photo que tu veux partager.');
         }
 
-        async function handleImageFile(event) {
-            const request = ++photoRequest;
-            preparedPhoto = '';
-            showPhotoPreview('');
+        async function loadPhotoImage(source) {
+            const image = new Image();
+            image.referrerPolicy = 'no-referrer';
+            const loaded = new Promise((resolve, reject) => {
+                image.onload = () => resolve(image);
+                image.onerror = reject;
+            });
+            image.src = source;
+            return loaded;
+        }
+
+        async function selectPhotoFile(event) {
             const file = event.target.files[0];
+            event.target.value = '';
             if (!file) return;
-            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 20 * 1024 * 1024) {
-                showToast('Choisissez une photo JPG, PNG ou WebP de 20 Mo maximum.', true);
+            const request = ++photoRequest;
+            byId('photo-url-input').value = '';
+            byId('photo-link-options').open = false;
+            setPhotoPreview('');
+            const heic = /heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+            const accepted = heic || /^(image\/(jpeg|png|webp|gif|avif|bmp|tiff|jxl|x-ms-bmp))$/i.test(file.type) ||
+                (!file.type && /\.(jpe?g|png|webp|gif|avif|bmp|tiff?|jxl)$/i.test(file.name));
+            if (!accepted) {
+                photoFeedback('Ce fichier n’est pas une photo reconnue. Choisis une autre image.', true);
                 return;
             }
+            if (file.size > 35 * 1024 * 1024) {
+                photoFeedback('Cette photo est trop volumineuse. Choisis une autre image.', true);
+                return;
+            }
+            photoFeedback('Préparation de la photo…');
             const source = URL.createObjectURL(file);
-            const image = new Image();
             try {
-                image.src = source;
-                await image.decode();
+                const image = await loadPhotoImage(source);
                 const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
                 const canvas = document.createElement('canvas');
                 canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
@@ -928,52 +924,79 @@
                 context.fillStyle = '#fff';
                 context.fillRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                const compressed = photoSource(canvas.toDataURL('image/jpeg', 0.78));
+                if (!compressed) throw new Error('Photo non lisible');
                 if (request !== photoRequest) return;
-                preparedPhoto = photoSource(canvas.toDataURL('image/jpeg', 0.76));
-                if (!preparedPhoto) throw new Error('Photo trop volumineuse');
-                if (photoMode === 'file') showPhotoPreview(preparedPhoto);
+                setPhotoPreview(compressed);
+                photoFeedback('Photo prête. Appuie sur « Partager cette photo ».');
             } catch {
-                if (request === photoRequest) showToast('Cette photo ne peut pas être lue. Essayez un autre fichier.', true);
+                if (request !== photoRequest) return;
+                photoFeedback(heic
+                    ? 'Ce navigateur ne peut pas ouvrir cette photo iPhone. Essaie dans Safari ou choisis une photo au format JPG.'
+                    : 'Cette photo n’a pas pu être ouverte. Choisis une autre image.', true);
             } finally {
                 URL.revokeObjectURL(source);
             }
         }
 
-        byId('photo-form').addEventListener('submit', async event => {
-            event.preventDefault();
-            const submit = byId('photo-submit-btn');
-            const url = photoMode === 'file' ? preparedPhoto : photoSource(byId('photo-url-input').value.trim());
-            if (!url) {
-                showToast('Sélectionnez une photo ou entrez un lien HTTPS valide.', true);
+        byId('choose-photo').addEventListener('click', () => byId('photo-file-input').click());
+        byId('take-photo').addEventListener('click', () => byId('camera-file-input').click());
+        byId('photo-file-input').addEventListener('change', selectPhotoFile);
+        byId('camera-file-input').addEventListener('change', selectPhotoFile);
+        byId('photo-cancel').addEventListener('click', () => togglePhotoModal(false));
+        byId('photo-url-input').addEventListener('input', async event => {
+            const request = ++photoRequest;
+            const value = event.target.value.trim();
+            setPhotoPreview('');
+            if (!value) {
+                photoFeedback('Colle le lien complet de la photo.');
                 return;
             }
-            const dialog = openDialog;
-            if (!sharedReady || submit.disabled) return;
+            const url = photoSource(value);
+            if (!url || !url.startsWith('https://')) {
+                photoFeedback('Le lien doit commencer par https://.', true);
+                return;
+            }
+            photoFeedback('Vérification de la photo…');
+            try {
+                await loadPhotoImage(url);
+                if (request !== photoRequest) return;
+                setPhotoPreview(url);
+                photoFeedback('Photo prête. Appuie sur « Partager cette photo ».');
+            } catch {
+                if (request === photoRequest) photoFeedback('Ce lien n’affiche pas de photo. Choisis une photo depuis ton appareil.', true);
+            }
+        });
+
+        byId('photo-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!sharedReady || !preparedPhoto || photoSending) return;
+            const submit = byId('photo-submit-btn');
+            const url = preparedPhoto;
             const caption = byId('photo-caption').value.trim();
             const id = pendingPhoto?.url === url && pendingPhoto.caption === caption ? pendingPhoto.id : crypto.randomUUID();
             pendingPhoto = { id, url, caption };
-            submit.disabled = true;
+            photoSending = true;
+            const locked = ['choose-photo', 'take-photo', 'photo-url-input', 'photo-caption', 'photo-cancel', 'photo-submit-btn'];
+            locked.forEach(control => { byId(control).disabled = true; });
+            submit.textContent = 'Envoi de la photo…';
+            photoFeedback('Envoi de la photo en cours.');
             try {
-                if (photoMode === 'url') {
-                    const image = new Image();
-                    image.referrerPolicy = 'no-referrer';
-                    image.src = url;
-                    await image.decode();
+                if (!await mutateFamily('add', 'photos', pendingPhoto)) {
+                    photoFeedback('La photo n’a pas été envoyée. Appuie sur « Partager cette photo » pour réessayer.', true);
+                    return;
                 }
-                if (dialog !== openDialog) return;
-                if (await mutateFamily('add', 'photos', pendingPhoto)) {
-                    pendingPhoto = null;
-                    event.target.reset();
-                    preparedPhoto = '';
-                    photoRequest += 1;
-                    switchPhotoSource('file');
-                    togglePhotoModal(false);
-                    showToast('Ta photo est visible par la famille.');
-                }
-            } catch {
-                showToast('Ce lien ne permet pas d’afficher une image. Vous pouvez ajouter le fichier directement.', true);
+                pendingPhoto = null;
+                photoSending = false;
+                togglePhotoModal(false);
+                const confirmation = byId('photo-published');
+                confirmation.hidden = false;
+                confirmation.textContent = '✓ Photo partagée ! Toute la famille peut la voir dans l’album.';
+                confirmation.focus();
             } finally {
-                submit.disabled = false;
+                photoSending = false;
+                locked.forEach(control => { byId(control).disabled = false; });
+                submit.textContent = 'Partager cette photo';
             }
         });
 
@@ -1027,18 +1050,23 @@
             }
         }
 
-        function togglePhotoModal(show) { toggleDialog('photo-modal', show); }
+        function togglePhotoModal(show) {
+            if (!show && photoSending) return;
+            resetPhotoForm();
+            toggleDialog('photo-modal', show);
+        }
         function toggleLightbox(show) { toggleDialog('lightbox-modal', show); }
         function toggleHelpModal(show) { toggleDialog('help-modal', show); }
 
         document.addEventListener('keydown', event => {
             if (!openDialog) return;
             if (event.key === 'Escape') {
-                toggleDialog(openDialog.id, false);
+                if (openDialog.id === 'photo-modal') togglePhotoModal(false);
+                else toggleDialog(openDialog.id, false);
                 return;
             }
             if (event.key !== 'Tab') return;
-            const controls = [...openDialog.querySelectorAll('button, input')].filter(element => !element.disabled && element.getClientRects().length);
+            const controls = [...openDialog.querySelectorAll('button, input, summary')].filter(element => !element.disabled && element.getClientRects().length);
             const first = controls[0];
             const last = controls.at(-1);
             if (event.shiftKey && document.activeElement === first) {
@@ -1077,7 +1105,7 @@
 
         initHanukkiah();
         initIconSelector();
-        switchPhotoSource('file');
+        byId('take-photo').hidden = !navigator.maxTouchPoints || !matchMedia('(pointer: coarse)').matches;
         loadInvitation();
         updateFamilyControls();
         renderMemories();
