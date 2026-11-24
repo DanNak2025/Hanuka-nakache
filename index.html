@@ -137,6 +137,17 @@
         }
         .main-action:hover { background-color: #f6dc95; }
         .main-action:disabled { opacity: 0.65; }
+        .photo-delete {
+            min-height: 48px;
+            padding: 0.65rem 1rem;
+            border: 1px solid #fca5a5;
+            border-radius: 0.75rem;
+            color: #fecaca;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .photo-delete:hover { background-color: #7f1d1d; }
+        .photo-delete:disabled { opacity: 0.65; cursor: wait; }
         #blessing-form { scroll-margin-top: 6rem; }
         #hero-family-photo { height: clamp(11rem, 51vw, 29rem); object-position: center 45%; }
         #author-name, #blessing-text { font-size: 1.125rem; line-height: 1.55; }
@@ -364,6 +375,8 @@
 
             <p id="photo-published" role="status" tabindex="-1" hidden class="mb-6 rounded-xl border border-emerald-400/60 bg-emerald-950 px-4 py-3 text-lg font-semibold text-emerald-100"></p>
 
+            <p class="mb-6 text-base leading-relaxed text-cream/85">Pour retirer une photo que tu as partagée, appuie sur « Supprimer ma photo ». Utilise le même navigateur et le même appareil que lors de l’envoi.</p>
+
             <!-- Grille de photos -->
             <div id="photo-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Photos injectées par JS -->
@@ -428,6 +441,7 @@
             <div class="mt-4 text-center max-w-2xl">
                 <p id="lightbox-caption" class="text-cream font-medium text-base sm:text-lg"></p>
                 <p id="lightbox-meta" class="text-goldLight/80 text-xs sm:text-sm mt-1"></p>
+                <button type="button" id="lightbox-delete" hidden class="photo-delete mt-4">Supprimer ma photo</button>
             </div>
         </div>
     </div>
@@ -475,6 +489,8 @@
         let sharedReadNumber = 0;
         let pendingBlessing;
         let pendingPhoto;
+        let lightboxPhotoId = null;
+        const deletingPhotos = new Set();
 
         function photoSource(value) {
             if (typeof value !== 'string') return '';
@@ -641,6 +657,7 @@
         function renderMemories() {
             renderBlessings();
             renderPhotos();
+            updateLightboxDelete();
         }
 
         function saveCandlesState() {
@@ -795,7 +812,7 @@
                 card.innerHTML = `<button type="button" class="block relative w-full h-56 bg-midnight">
                     <img loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-cover">
                     <span class="absolute bottom-3 right-3 bg-midnight/90 rounded-full px-3 py-1 text-goldLight text-xs">Agrandir</span>
-                </button><figcaption class="p-4 flex justify-between gap-3 text-sm"><span class="break-words min-w-0"></span></figcaption>`;
+                </button><figcaption class="p-4 flex flex-col items-start gap-3 text-sm"><span class="break-words min-w-0"></span></figcaption>`;
                 const caption = photo.caption || 'Souvenir de Hanoucca';
                 const image = card.querySelector('img');
                 image.alt = caption;
@@ -809,11 +826,14 @@
                 enlarge.onclick = () => openLightbox(photo);
                 const captionBox = card.querySelector('figcaption');
                 captionBox.firstElementChild.textContent = caption;
-                if (photo.owned) {
+                if (photo.owned === true) {
                     const remove = document.createElement('button');
                     remove.type = 'button';
-                    remove.className = 'text-xs text-cream/70 hover:text-red-300';
-                    remove.textContent = 'Supprimer';
+                    remove.className = 'photo-delete shrink-0';
+                    remove.dataset.photoId = photo.id;
+                    remove.disabled = deletingPhotos.has(photo.id);
+                    remove.textContent = remove.disabled ? 'Suppression…' : 'Supprimer ma photo';
+                    remove.setAttribute('aria-label', `Supprimer ma photo — ${caption}`);
                     remove.onclick = () => removeMemory('photos', photo.id);
                     captionBox.append(remove);
                 }
@@ -822,8 +842,30 @@
         }
 
         async function removeMemory(collection, id) {
-            if (!confirm('Retirer ce souvenir de l’espace familial ?')) return;
-            if (await mutateFamily('remove', collection, { id })) showToast('Souvenir supprimé.');
+            const item = memories[collection]?.find(memory => memory.id === id);
+            if (!sharedReady || item?.owned !== true) return;
+            if (collection !== 'photos') {
+                if (!confirm('Retirer ce souvenir de l’espace familial ?')) return;
+                if (await mutateFamily('remove', collection, { id })) showToast('Souvenir supprimé.');
+                return;
+            }
+            if (deletingPhotos.has(id)) return;
+            if (!confirm('Supprimer ta photo de l’album familial ? Elle ne sera plus visible par la famille. Cette action est définitive.')) return;
+            deletingPhotos.add(id);
+            renderPhotos();
+            updateLightboxDelete();
+            try {
+                if (await mutateFamily('remove', 'photos', { id })) {
+                    if (lightboxPhotoId === id && openDialog === byId('lightbox-modal')) toggleLightbox(false);
+                    byId('photo-published').hidden = true;
+                    showToast('Ta photo a été supprimée de l’album familial.');
+                    if (!openDialog) byId('add-family-photo').focus({ preventScroll: true });
+                }
+            } finally {
+                deletingPhotos.delete(id);
+                renderPhotos();
+                updateLightboxDelete();
+            }
         }
 
         byId('blessing-form').addEventListener('submit', async event => {
@@ -998,7 +1040,19 @@
             }
         });
 
+        function updateLightboxDelete() {
+            const photo = memories.photos.find(item => item.id === lightboxPhotoId);
+            const button = byId('lightbox-delete');
+            button.hidden = !sharedReady || photo?.owned !== true;
+            button.disabled = deletingPhotos.has(lightboxPhotoId);
+            button.textContent = button.disabled ? 'Suppression…' : 'Supprimer ma photo';
+        }
+
+        byId('lightbox-delete').addEventListener('click', () => removeMemory('photos', lightboxPhotoId));
+
         function openLightbox(photo) {
+            lightboxPhotoId = photo.id;
+            updateLightboxDelete();
             byId('lightbox-img').src = photo.url;
             byId('lightbox-caption').textContent = photo.caption || 'Souvenir de Hanoucca';
             byId('lightbox-meta').textContent = photo.date || '';
