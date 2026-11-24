@@ -375,7 +375,7 @@
 
             <p id="photo-published" role="status" tabindex="-1" hidden class="mb-6 rounded-xl border border-emerald-400/60 bg-emerald-950 px-4 py-3 text-lg font-semibold text-emerald-100"></p>
 
-            <p class="mb-6 text-base leading-relaxed text-cream/85">Pour retirer une photo que tu as partagée, appuie sur « Supprimer ma photo ». Utilise le même navigateur et le même appareil que lors de l’envoi.</p>
+            <p class="mb-6 text-base leading-relaxed text-cream/85">Chaque personne ayant accès à l’espace familial peut demander la suppression d’une photo de l’album. Appuie sur « Supprimer cette photo », puis confirme ton choix.</p>
 
             <!-- Grille de photos -->
             <div id="photo-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -441,7 +441,7 @@
             <div class="mt-4 text-center max-w-2xl">
                 <p id="lightbox-caption" class="text-cream font-medium text-base sm:text-lg"></p>
                 <p id="lightbox-meta" class="text-goldLight/80 text-xs sm:text-sm mt-1"></p>
-                <button type="button" id="lightbox-delete" hidden class="photo-delete mt-4">Supprimer ma photo</button>
+                <button type="button" id="lightbox-delete" hidden class="photo-delete mt-4">Supprimer cette photo</button>
             </div>
         </div>
     </div>
@@ -826,14 +826,14 @@
                 enlarge.onclick = () => openLightbox(photo);
                 const captionBox = card.querySelector('figcaption');
                 captionBox.firstElementChild.textContent = caption;
-                if (photo.owned === true) {
+                if (sharedReady && photo.id !== featuredPhoto.id) {
                     const remove = document.createElement('button');
                     remove.type = 'button';
                     remove.className = 'photo-delete shrink-0';
                     remove.dataset.photoId = photo.id;
                     remove.disabled = deletingPhotos.has(photo.id);
-                    remove.textContent = remove.disabled ? 'Suppression…' : 'Supprimer ma photo';
-                    remove.setAttribute('aria-label', `Supprimer ma photo — ${caption}`);
+                    remove.textContent = remove.disabled ? 'Suppression…' : 'Supprimer cette photo';
+                    remove.setAttribute('aria-label', `Supprimer cette photo — ${caption}`);
                     remove.onclick = () => removeMemory('photos', photo.id);
                     captionBox.append(remove);
                 }
@@ -843,22 +843,26 @@
 
         async function removeMemory(collection, id) {
             const item = memories[collection]?.find(memory => memory.id === id);
-            if (!sharedReady || item?.owned !== true) return;
+            if (!sharedReady || !item || (collection !== 'photos' && item.owned !== true)) return;
             if (collection !== 'photos') {
                 if (!confirm('Retirer ce souvenir de l’espace familial ?')) return;
                 if (await mutateFamily('remove', collection, { id })) showToast('Souvenir supprimé.');
                 return;
             }
             if (deletingPhotos.has(id)) return;
-            if (!confirm('Supprimer ta photo de l’album familial ? Elle ne sera plus visible par la famille. Cette action est définitive.')) return;
+            if (!confirm('Supprimer cette photo de l’album familial, même si une autre personne l’a partagée ? Elle ne sera plus visible par la famille. Cette action est définitive.')) return;
             deletingPhotos.add(id);
             renderPhotos();
             updateLightboxDelete();
             try {
                 if (await mutateFamily('remove', 'photos', { id })) {
+                    if (memories.photos.some(photo => photo.id === id)) {
+                        showToast('La suppression n’a pas pu être confirmée. Le serveur peut encore la réserver à la personne ayant envoyé la photo.', true);
+                        return;
+                    }
                     if (lightboxPhotoId === id && openDialog === byId('lightbox-modal')) toggleLightbox(false);
                     byId('photo-published').hidden = true;
-                    showToast('Ta photo a été supprimée de l’album familial.');
+                    showToast('La photo a été supprimée de l’album familial.');
                     if (!openDialog) byId('add-family-photo').focus({ preventScroll: true });
                 }
             } finally {
@@ -1043,9 +1047,9 @@
         function updateLightboxDelete() {
             const photo = memories.photos.find(item => item.id === lightboxPhotoId);
             const button = byId('lightbox-delete');
-            button.hidden = !sharedReady || photo?.owned !== true;
+            button.hidden = !sharedReady || !photo;
             button.disabled = deletingPhotos.has(lightboxPhotoId);
-            button.textContent = button.disabled ? 'Suppression…' : 'Supprimer ma photo';
+            button.textContent = button.disabled ? 'Suppression…' : 'Supprimer cette photo';
         }
 
         byId('lightbox-delete').addEventListener('click', () => removeMemory('photos', lightboxPhotoId));
